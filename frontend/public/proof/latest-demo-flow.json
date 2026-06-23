@@ -1,0 +1,141 @@
+{
+  "kind": "LedgerZeroFullDemoFlow",
+  "createdAt": "2026-06-23T18:54:37.939Z",
+  "status": "compute-fallback",
+  "framework": "hermes",
+  "agentName": "demo-hermes-mqr02xly",
+  "tokenId": "15",
+  "taskId": "0x4d36eab25551f98bcff643694668effb19ca73dc55f512b3b12b56ae2a75d585",
+  "task": {
+    "title": "Produce a buyer-ready hermes agent diligence memo",
+    "description": "Evaluate the worker, produce risks, next steps, and proof-backed output.",
+    "category": "Research",
+    "tags": [
+      "risk",
+      "citations"
+    ]
+  },
+  "accounts": {
+    "operator": "0xFF8eF7B9EdD1Bf80A3454200CA2fb6AaCED3E120",
+    "buyer": "0x5dD8001cA907501DFd886154919478f2Af40f1ce",
+    "newOwner": "0x6C6a6E1C5367612FDEd93b628dDbB2B0B46518d8"
+  },
+  "economics": {
+    "taskPayment0G": "0.0004",
+    "bidAmount0G": "0.0003",
+    "bondAmount0G": "0.0001",
+    "salePrice0G": "11.8",
+    "purchasePayment0G": "0.0002",
+    "payoutRecipientBeforeTransfer": "0xFF8eF7B9EdD1Bf80A3454200CA2fb6AaCED3E120",
+    "payoutRecipientAfterTransfer": "0x6C6a6E1C5367612FDEd93b628dDbB2B0B46518d8",
+    "newOwnerBalanceBefore0G": "0.002715999999853",
+    "newOwnerBalanceAfter0G": "0.003115999999853"
+  },
+  "storage": {
+    "taskBriefRoot": "0x11d7c0ada866fe02708dd1749946a09707f772bdc1290626993269387507d628",
+    "taskBriefTx": "0x65806b5e9613c7d75d28861f2fe95a034bd112d6930a4772c6db17826f88f8cc",
+    "memoryRoot": "0x076e67a42e9a0ec9f3256dd7128ed7b9fc92aaf1ce2b6eefbecac0a86c88b10c",
+    "memoryTx": "0x857f7dcbba1991dea710f3113feb0b9f9fb2000c5780ed4f34cdeac07e693a30",
+    "capabilityRoot": "0x07936e21eae5c96ae3f5c086782e9657b63c80663c3ab6d05582ebb28085ae26",
+    "capabilityTx": "0x5cd4e5b3bce604edf1f549f4d195aef1eaeb4a24a4348edfc426e465b58bcd06",
+    "jobResultRoot": "0x4e7e7d571f80f69651bc05bb009cc9d2bf6ebc1699ce0380eaed8e5b226bac5f",
+    "jobResultTx": "0x621fad9f18ed903547aaaea747365b2af5e91b25eb449f7cf690e39978457946",
+    "transferReceiptRoot": "0x5d45ea417e315a86630d040692bd9be78771cca7bfa941d18501dfa9dae67087",
+    "transferReceiptTx": "0x40563a47a0cca3176249f83dae2bf8a9d1f70bd11801b7308b00ec799809ba69",
+    "reputationSnapshotRoot": "0x1e0b39bdfd3179f2b17cf1a9e3d76474a96eff7415989c7fd3ab855d4c857131",
+    "reputationSnapshotTx": "0x3ffd2edf63b097325ac32dc38ff1479a55e1587717c88b2adabf19d0161ebd22",
+    "demoReceiptRoot": "0x309cf61d300f6551deec958757eb9236628a4f53fcb416280cc176e8f61027cc",
+    "demoReceiptTx": "0x6c5595d9648447f428f6d27730db656cabd7dbec743deaf3c0b6acc1945e87be"
+  },
+  "compute": {
+    "ran": false,
+    "content": "Compute skipped for fast local proof; run with runCompute=true for recording.",
+    "proof": null
+  },
+  "chainTxs": [
+    {
+      "label": "mint WorkerINFT",
+      "hash": "0xc7671b07f19ec4b75942f375c9943b26e6580a09c4396776802515864b1a551c",
+      "block": 40352920
+    },
+    {
+      "label": "register capability",
+      "hash": "0xc5f6a967f0bdff5040f9ee1151ccc5775981e25121b09dcc3148723d5ddf5074",
+      "block": 40352944
+    },
+    {
+      "label": "register identity",
+      "hash": "0xe9a2f8f42ad07e6d777596837abcb799e51da365772b5c72002eafb5e7ec7dbd",
+      "block": 40352965
+    },
+    {
+      "label": "fund buyer wallet",
+      "hash": "0x9783a3dab78f86c953a130e0dcd9c1bfa9ed2f1869be654852f3118545a6107f",
+      "block": 40352986
+    },
+    {
+      "label": "fund purchaser wallet",
+      "hash": "0xe9811eb8474873530132dbff99bb2bb85f1f7f3bfe51d722517667f2d8cbbab2",
+      "block": 40353009
+    },
+    {
+      "label": "post escrow task",
+      "hash": "0x5713005e6fe3055888d3dd3e01528a1cccf59eb236acca4b10a5a363ee53bd32",
+      "block": 40353032
+    },
+    {
+      "label": "accept token bid",
+      "hash": "0x704c71a51b94a3c5afe045994bffbe8c1d7725ccdbcaccd47c0ab7d45678d505",
+      "block": 40353065
+    },
+    {
+      "label": "purchase worker token",
+      "hash": "0xfd189310251bf25b63f0641c403c7d7d88e83f3f5cbe37bf5659c69f1842a3f3",
+      "block": 40353114
+    },
+    {
+      "label": "transfer worker token",
+      "hash": "0xc8468757328b1345b045fc88e59204142c0ad5fdceb98be46b15840cd220e0b2",
+      "block": 40353133
+    },
+    {
+      "label": "release escrow payment",
+      "hash": "0x5adf6d977351e3bd659bf84bb8b92aab65996cc743cdae0c20ef381aec49438e",
+      "block": 40353185
+    }
+  ],
+  "contractAddresses": {
+    "workerINFT": "0x125942cb1E23E07DA5f80A5c05Bde3fF6e7322F9",
+    "escrow": "0xebF3d73aD8Eba1786Aa4A6c9c76d112F44e81725",
+    "capabilityRegistry": "0xF8197DE7E805D3b5C930C4784D266e23D4DA28F9",
+    "identityRegistry": "0x0F9Df2825DC195413D477aE08087d8FAd154dD34",
+    "erc8004": "0xF769ac45Aec208627283915565B13519b3911d21"
+  },
+  "assertions": [
+    {
+      "label": "buyer posted task",
+      "value": "0x5dD8001cA907501DFd886154919478f2Af40f1ce",
+      "status": "live"
+    },
+    {
+      "label": "worker owner accepted token bid",
+      "value": "0xFF8eF7B9EdD1Bf80A3454200CA2fb6AaCED3E120",
+      "status": "live"
+    },
+    {
+      "label": "payout follows transferred worker token",
+      "value": "0x6C6a6E1C5367612FDEd93b628dDbB2B0B46518d8",
+      "status": "live"
+    },
+    {
+      "label": "new owner received release",
+      "value": "0.002715999999853 -> 0.003115999999853 0G",
+      "status": "live"
+    },
+    {
+      "label": "future revenue rule",
+      "value": "LedgerEscrow.payoutRecipient(taskId) = WorkerINFT.ownerOf(tokenId)",
+      "status": "live"
+    }
+  ]
+}

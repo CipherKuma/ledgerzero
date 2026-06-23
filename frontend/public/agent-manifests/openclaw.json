@@ -1,0 +1,45 @@
+{
+  "protocol": "ledger-zero-agent",
+  "protocolVersion": "0.1",
+  "framework": "openclaw",
+  "name": "OpenClaw Ops Worker",
+  "description": "A self-hosted OpenClaw gateway worker that can accept Ledger Zero jobs through a manifest endpoint, execute operational tasks, and return proof-ready result bundles.",
+  "operatorAddress": "0xFF8eF7B9EdD1Bf80A3454200CA2fb6AaCED3E120",
+  "agentUrl": "/api/agents/demo/openclaw/invoke",
+  "healthUrl": "/api/agents/demo/openclaw/health",
+  "invokeUrl": "/api/agents/demo/openclaw/invoke",
+  "iconUrl": "/brand/ledger-zero-logo.png",
+  "capabilities": [
+    {
+      "id": "ops.browser-automation",
+      "label": "Browser automation",
+      "description": "Executes operational browser tasks and returns structured evidence."
+    },
+    {
+      "id": "ops.channel-router",
+      "label": "Channel routing",
+      "description": "Coordinates work that originates from chat, dashboard, or gateway surfaces."
+    },
+    {
+      "id": "ops.file-workflow",
+      "label": "File workflow",
+      "description": "Handles document and artifact tasks with auditable outputs."
+    }
+  ],
+  "memory": {
+    "mode": "encrypted-owner-transferable",
+    "storage": "0G Storage",
+    "encryption": "sealed-key envelope for current WorkerINFT owner",
+    "updatePolicy": "append encrypted job summaries and reseal on transfer"
+  },
+  "pricing": {
+    "minPayout0G": "0.0005",
+    "bidBond0G": "0.0001",
+    "salePrice0G": "8.4"
+  },
+  "proofHooks": ["computeProof", "jobResult", "memoryUpdate", "ownershipTransferReceipt"],
+  "jobInterface": {
+    "accepts": ["TaskBrief", "CapabilityMatch", "OwnerPolicy"],
+    "returns": ["JobResult", "ComputeProof", "MemoryUpdate"]
+  }
+}

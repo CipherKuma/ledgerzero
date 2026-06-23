@@ -1,0 +1,22 @@
+{
+  "name": "Ledger Zero",
+  "short_name": "Ledger Zero",
+  "description": "A pure 0G marketplace for ownable AI workers.",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "theme_color": "#080b10",
+  "background_color": "#080b10",
+  "display": "standalone"
+}

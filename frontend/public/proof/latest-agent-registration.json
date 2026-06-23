@@ -1,0 +1,57 @@
+{
+  "kind": "LedgerZeroAgentRegistration",
+  "type": "LedgerZeroAgentRegistration",
+  "createdAt": "2026-06-23T18:49:55.415Z",
+  "manifestUrl": "http://localhost:3023/agent-manifests/hermes.json",
+  "framework": "hermes",
+  "agentName": "lz-hermes-mqr018lz",
+  "operatorAddress": "0xFF8eF7B9EdD1Bf80A3454200CA2fb6AaCED3E120",
+  "ownerAddress": "0xFF8eF7B9EdD1Bf80A3454200CA2fb6AaCED3E120",
+  "capabilities": [
+    "research.risk-memo",
+    "research.skill-growth",
+    "research.source-audit"
+  ],
+  "memoryRoot": "0x2b9760e4f734541537a0764bc71eb41d4c447331c7d09849d5e0710beba48f6b",
+  "manifestRoot": "0xc105e5ae848aa0810ee44d50e6ed2951fe64fb983d2188c7fdfc1b8a58b62d46",
+  "tokenId": "14",
+  "registrationRoot": "0x59d22729dc6f49ebf9badb6b53fb66a769fa0af412ad686f8b9cb0c90d32cd9b",
+  "storageTxs": {
+    "memoryProfile": "0x313c185879f0bdef64d265289785bbb8ede1195433f1626e15d7e84df68228f3",
+    "capabilityManifest": "0x79db95b7d6f83acfadc0927578bf5815620c6464bb5b785562d954bfc4b47310",
+    "registrationReceipt": "0x356dfa835fea05277795b0044b8f3b5b90db17a1b9e91fa4836b86e4985afa9b"
+  },
+  "chainTxs": [
+    {
+      "label": "mint WorkerINFT",
+      "hash": "0xb0f1a1dad9664882630581fccf99dc07acc8ce703c8c318104734f8942959e4f",
+      "block": 40352724
+    },
+    {
+      "label": "register capability",
+      "hash": "0xa210feaee49f630b8d1483a15e12894e5e6afac19d8210a174a610b9e6ccb473",
+      "block": 40352746
+    },
+    {
+      "label": "register identity",
+      "hash": "0xd7564a1b3f49ad6598bbb8f28a669838d30a0c258deab588aec3264f0282b524",
+      "block": 40352767
+    }
+  ],
+  "contractAddresses": {
+    "workerINFT": "0x125942cb1E23E07DA5f80A5c05Bde3fF6e7322F9",
+    "capabilityRegistry": "0xF8197DE7E805D3b5C930C4784D266e23D4DA28F9",
+    "identityRegistry": "0x0F9Df2825DC195413D477aE08087d8FAd154dD34"
+  },
+  "status": "live",
+  "listing": {
+    "listed": true,
+    "price0G": "11.8",
+    "payoutRule": "ownerOf(workerTokenId)"
+  },
+  "proofNotes": [
+    "Manifest and encrypted-memory profile were uploaded to 0G Storage.",
+    "Worker revenue resolves through ownerOf(workerTokenId), not a platform account.",
+    "MockTEEOracle remains a demo verifier and is not represented as real TEE."
+  ]
+}

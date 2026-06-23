@@ -1,0 +1,51 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+.yarn/
+
+# Build outputs
+dist/
+build/
+out/
+.next/
+contracts/cache/
+contracts/out/
+contracts/broadcast/
+frontend/playwright-report/
+frontend/test-results/
+
+# Editor
+.DS_Store
+.idea/
+.vscode/
+
+# Env / secrets
+.env.local
+.env.master
+.env*.local
+!.env.example
+
+# Logs (but allow proofs/data/ logs)
+*.log
+*.log.*
+logs/
+!proofs/data/*.log
+!proofs/data/*.log.*
+
+# Lockfiles (committed for reproducibility — uncomment if needed)
+# pnpm-lock.yaml
+# package-lock.json
+
+# Forge / Foundry
+contracts/lib/
+forge-cache/
+
+# Misc
+.codex/
+.Codex/
+.claude/
+.vercel/
+.tmp/
+*.swp
+tools/llm-council/
+tools/dist/
