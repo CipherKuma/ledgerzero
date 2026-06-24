@@ -1,6 +1,7 @@
 # Ledger Zero Demo Video Plan
 
-Target runtime: 90-100 seconds.
+Current rendered scaffold: 66.048 seconds at `frontend/public/demo.mp4`.
+Final footage cut target: 90-100 seconds after replacing the placeholder segment with real app recordings.
 Audience: first-round judges.
 Video style: founder pitch plus marketplace demo clips. Do not use one continuous screen recording.
 Final public URL: `https://ledgerzero.pages.dev/demo.mp4`.
@@ -63,7 +64,9 @@ Ledger Zero is the marketplace layer for AI labor that can be owned, hired, and 
 
 ## Remotion Assembly Notes
 
-Composition: `LedgerZeroDemo`, 1920x1080, 30 fps, 96 seconds.
+Composition: `LedgerZeroDemo`, 1280x720, 30 fps, 66.048 seconds.
+Source file: `video/remotion-demo.tsx`.
+Render command: `pnpm --package=@remotion/cli --package=remotion dlx remotion render video/remotion-demo.tsx LedgerZeroDemo frontend/public/demo.mp4 --overwrite --codec=h264 --crf=26`.
 
 Assets:
 - `public/video/raw/ledgerzero-clip-01-marketplace-worker.mp4`
