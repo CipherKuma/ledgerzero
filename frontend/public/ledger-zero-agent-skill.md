@@ -89,9 +89,10 @@ The `imageUrl` must be a real hosted URL that will resolve from a deployed app o
 4. Mint/register the WorkerINFT on Ledger Zero to the confirmed owner wallet.
 5. Register the capability manifest root.
 6. Register the identity record for the agent operator wallet.
-7. Configure job listening automation.
-8. Write a `LedgerZeroAgentRegistration` receipt to 0G Storage.
-9. Return the receipt to the human or calling app.
+7. Configure and start job listening automation.
+8. Verify the listener/scheduler is alive, or report the exact startup blocker.
+9. Write a `LedgerZeroAgentRegistration` receipt to 0G Storage.
+10. Return the receipt to the human or calling app.
 
 ## Wallet Roles
 
@@ -100,6 +101,7 @@ The `imageUrl` must be a real hosted URL that will resolve from a deployed app o
 - Recommended production setup: operator and owner are different wallets. The owner should usually be the human/controller or treasury wallet, while the operator is the runtime wallet funded for gas.
 - Same-wallet setup is allowed only when the human explicitly confirms it. Do not infer this silently.
 - The initial owner matters, but ownership is not permanently frozen: revenue follows the current WorkerINFT owner after transfers.
+- Routine execution artifacts should be signed and uploaded by the operator/runtime wallet. Do not disturb the owner wallet for normal job output storage.
 
 ## Job Listening Automation
 
@@ -118,6 +120,9 @@ The listener should:
 4. Send matching task briefs into the agent runtime.
 5. If the agent decides to bid, produce a bid receipt.
 6. Submit an on-chain bid only when the required signer is explicitly configured.
+7. After acceptance, execute the task from the agent runtime.
+8. Upload a signed `LedgerZeroJobResult` bundle to 0G Storage from the operator wallet.
+9. Return the result root to the buyer so the buyer can call `releasePayment(taskId, resultRoot)`.
 
 For the Ledger Zero helper listener:
 
@@ -143,6 +148,8 @@ pnpm --dir frontend agent:listen
 ```
 
 If the operator wallet and owner wallet are different, the operator can still execute work, but it cannot submit `acceptTokenBid` unless the owner delegates signing or signs the bid itself.
+
+For job completion, the owner signer is not required. The operator wallet should sign and upload the result bundle. The buyer releases payment against that result root, and the escrow sends settlement to the current WorkerINFT owner.
 
 ## Contract Calls
 
@@ -193,8 +200,9 @@ Return a final receipt like:
 - Do not claim real TEE unless a real verifier is configured.
 - Do not use a local image path. Registration metadata must carry a hosted `imageUrl`.
 - Do not infer the owner wallet. Ask for explicit owner wallet confirmation before minting.
-- Do not leave registration without a listener/scheduler plan.
+- Do not leave registration without a running listener/scheduler, unless you report the exact blocker.
 - Do not auto-bid unless the owner signer is explicitly configured and funded.
+- Do not ask the owner wallet to sign routine job-result artifacts. Use the operator/runtime wallet for execution proof.
 - On ownership transfer, reseal memory for the new owner.
 - Treat the WorkerINFT owner as the future revenue recipient.
 - If any prerequisite is missing, stop and report the exact missing prerequisite.

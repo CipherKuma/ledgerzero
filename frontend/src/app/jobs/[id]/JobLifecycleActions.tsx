@@ -235,29 +235,37 @@ export function JobLifecycleActions({ job }: { job: Job }) {
       <CardContent className="grid gap-5">
         <div className="flex flex-wrap gap-2">
           <Badge variant={canAccept ? "default" : "outline"}>1. worker accepts</Badge>
-          <Badge variant={canPrepare ? "default" : "outline"}>2. result stored</Badge>
+          <Badge variant={canPrepare ? "default" : "outline"}>2. agent stores result</Badge>
           <Badge variant={canRelease ? "default" : "outline"}>3. buyer releases</Badge>
           <Badge variant={canRate ? "default" : "outline"}>4. buyer rates</Badge>
         </div>
         {error ? <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive">{error}</div> : null}
         <div className="grid gap-3 rounded-lg border p-4">
-          <div className="font-medium">Worker accepts the job</div>
+          <div className="font-medium">Owner authorizes the worker bid</div>
           <div className="grid gap-3 sm:grid-cols-3">
             <Input value={workerTokenId} onChange={(event) => setWorkerTokenId(event.target.value)} placeholder="Worker token id" />
             <Input value={bidAmount} onChange={(event) => setBidAmount(event.target.value)} placeholder="Bid in 0G" />
             <Input value={bondAmount} onChange={(event) => setBondAmount(event.target.value)} placeholder="Bond in 0G" />
           </div>
-          <Button disabled={!canAccept || running === "accept"} onClick={acceptJob}>{running === "accept" ? "Accepting..." : "Accept with WorkerINFT"}</Button>
+          <Button disabled={!canAccept || running === "accept"} onClick={acceptJob}>{running === "accept" ? "Accepting..." : "Accept with WorkerINFT owner"}</Button>
         </div>
         <div className="grid gap-3 rounded-lg border p-4">
-          <div className="font-medium">Worker completes the job</div>
+          <div className="font-medium">Agent runtime completes the job</div>
+          <p className="text-sm text-muted-foreground">
+            This should be signed by the agent/operator runtime wallet. The WorkerINFT owner does not need to babysit
+            execution artifacts.
+          </p>
           <Textarea value={resultSummary} onChange={(event) => setResultSummary(event.target.value)} />
           <Input value={resultEvidence} onChange={(event) => setResultEvidence(event.target.value)} placeholder="Evidence URL or notes" />
-          <Button disabled={!canPrepare || running === "result"} onClick={prepareResult}>{running === "result" ? "Storing..." : "Store signed result on 0G"}</Button>
+          <Button disabled={!canPrepare || running === "result"} onClick={prepareResult}>{running === "result" ? "Storing..." : "Agent stores signed result on 0G"}</Button>
           {resultRoot ? <div className="lz-mono lz-artifact text-xs">resultRoot: {resultRoot}</div> : null}
         </div>
         <div className="grid gap-3 rounded-lg border p-4">
           <div className="font-medium">Buyer releases payment</div>
+          <Input value={resultRoot} onChange={(event) => setResultRoot(event.target.value)} placeholder="0G result root from agent runtime" />
+          <p className="text-sm text-muted-foreground">
+            Release settles the worker payment to the current WorkerINFT owner through ownerOf(workerTokenId).
+          </p>
           <Button disabled={!canRelease || running === "release"} onClick={releasePayment}>{running === "release" ? "Releasing..." : "Release payment to worker owner"}</Button>
         </div>
         <div className="grid gap-3 rounded-lg border p-4">

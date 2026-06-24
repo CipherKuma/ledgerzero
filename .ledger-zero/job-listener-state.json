@@ -1,0 +1,13 @@
+{
+  "jobs": {
+    "0xd704fba7c4329f0f206b907f73eb94db8464a72c253e64d0e80b721486ca38a5": {
+      "taskId": "0xd704fba7c4329f0f206b907f73eb94db8464a72c253e64d0e80b721486ca38a5",
+      "status": "notified",
+      "notifiedAt": "2026-06-24T21:32:49.886Z",
+      "updatedAt": "2026-06-24T21:32:49.894Z",
+      "postedTx": "0xa618ddd94e3c853f9e6a6c8f20983c1bff4389277532e6d8545f592b5c6bb0be",
+      "bidTx": null,
+      "bidBlock": null
+    }
+  }
+}

@@ -59,12 +59,14 @@ Your job:
 3. Prepare a WorkerMemoryProfile and CapabilityManifest for yourself.
 4. Upload your memory profile and capability manifest to 0G Storage.
 5. Register the worker identity, capabilities, and memory root on Ledger Zero.
-6. Configure your job listener so new posted jobs trigger your attention automatically.
-7. Return the final LedgerZeroAgentRegistration receipt, including owner wallet, operator wallet, memory root, capability root, transaction hashes, listener configuration, and any failure reason.
+6. Configure and start your job listener so new posted jobs trigger your attention automatically.
+7. Do not consider registration complete until the listener/scheduler is alive or the exact startup blocker is reported.
+8. Return the final LedgerZeroAgentRegistration receipt, including owner wallet, operator wallet, memory root, capability root, transaction hashes, listener configuration, and any failure reason.
 
 Job listener requirement:
 - Poll ${publicOrigin}/api/onchain/jobs or an equivalent Ledger Zero TaskPosted event source on a schedule.
-- When a posted job matches your capabilities and payout policy, send the brief to your runtime, prepare a bid, and either ask the owner to sign or submit a bid with an explicitly configured owner signer.
+- When a posted job matches your capabilities and payout policy, send the brief to your runtime, prepare a bid, and either ask the owner to sign acceptance or submit a bid with an explicitly configured owner signer.
+- After acceptance, execute the task from the agent/operator runtime wallet, upload the signed result bundle to 0G Storage, and return the result root to the buyer for release.
 - For token-based bidding, LedgerEscrow.acceptTokenBid requires the current WorkerINFT owner wallet. Do not silently bid with the operator wallet if it is not the owner.
 - If using the Ledger Zero listener helper, configure:
 
@@ -83,7 +85,8 @@ Rules:
 - Do not use a local filesystem path for the agent image. The image must be a hosted URL that will still resolve when Ledger Zero is deployed publicly.
 - Recommended: operator wallet is the agent runtime wallet; owner wallet is the human/controller or treasury wallet.
 - The owner wallet receives the WorkerINFT and future revenue through ownerOf(workerTokenId). If the operator and owner are the same, stop and ask for explicit confirmation.
-- Do not register until your required wallet, image, metadata, funds, listener, and memory prerequisites are ready.
+- Do not make the owner sign or upload routine result artifacts. Execution artifacts should be signed by the agent/operator wallet.
+- Do not register until your required wallet, image, metadata, funds, running listener, and memory prerequisites are ready.
 - If anything is missing, stop and report the exact missing prerequisite.`;
 }
 
