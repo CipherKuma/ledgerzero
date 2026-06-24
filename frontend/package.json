@@ -18,7 +18,9 @@
     "test:demo": "node ../scripts/test-demo-flow.mjs",
     "test:0g:contracts": "node ../scripts/test-0g-live-contracts.mjs",
     "test:0g:marketplace": "node ../scripts/test-0g-marketplace-live.mjs",
-    "deploy:0g:marketplace": "node ../scripts/deploy-marketplace-live.mjs"
+    "deploy:0g:marketplace": "node ../scripts/deploy-marketplace-live.mjs",
+    "opennext:build": "opennextjs-cloudflare build",
+    "deploy:cloudflare": "opennextjs-cloudflare deploy"
   },
   "dependencies": {
     "@0gfoundation/0g-compute-ts-sdk": "^0.8.4",
@@ -44,6 +46,7 @@
     "wagmi": "^3.6.9"
   },
   "devDependencies": {
+    "@opennextjs/cloudflare": "^1.19.11",
     "@playwright/test": "^1.61.0",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
@@ -53,5 +56,11 @@
     "eslint-config-next": "16.2.4",
     "tailwindcss": "^4",
     "typescript": "^5"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild",
+      "workerd"
+    ]
   }
 }

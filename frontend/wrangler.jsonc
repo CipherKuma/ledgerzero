@@ -1,0 +1,18 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "ledgerzero",
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2026-06-24",
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+  "observability": { "enabled": true },
+  "vars": {
+    "ZEROG_RPC": "https://evmrpc-testnet.0g.ai",
+    "ZEROG_INDEXER": "https://indexer-storage-testnet-turbo.0g.ai",
+    "ZEROG_COMPUTE_ROUTER": "https://router-api.0g.ai/v1",
+    "ZEROG_COMPUTE_MODEL": "glm-5.2"
+  }
+}

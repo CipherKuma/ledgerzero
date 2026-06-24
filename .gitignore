@@ -13,6 +13,8 @@ contracts/out/
 contracts/broadcast/
 frontend/playwright-report/
 frontend/test-results/
+frontend/.open-next/
+frontend/.wrangler/
 
 # Editor
 .DS_Store
