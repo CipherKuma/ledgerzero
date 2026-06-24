@@ -1,88 +1,496 @@
 import React from 'react';
-import {AbsoluteFill, Composition, interpolate, registerRoot, spring, useCurrentFrame, useVideoConfig} from 'remotion';
+import {
+  AbsoluteFill,
+  Audio,
+  Composition,
+  Img,
+  Sequence,
+  interpolate,
+  registerRoot,
+  spring,
+  staticFile,
+  useCurrentFrame,
+  useVideoConfig,
+  Video,
+} from 'remotion';
 
-type Scene = {kind: 'title' | 'problem' | 'product' | 'placeholder' | 'proof' | 'close'; eyebrow: string; title: string; body: string; points?: string[]};
-type Project = {id: string; name: string; accent: string; accent2: string; bg: string; fg: string; scenes: Scene[]};
+type Project = {
+  id: string;
+  name: string;
+  domain: string;
+  logo: string;
+  accent: string;
+  accent2: string;
+  bg: string;
+  fg: string;
+  durationSeconds: number;
+  hook: string;
+  subhook: string;
+  problemTitle: string;
+  problem: string;
+  demoTitle: string;
+  demoCaption: string;
+  proofTitle: string;
+  proof: string;
+  close: string;
+  beats: string[];
+  proofPoints: string[];
+};
 
 const fps = 30;
-const sceneSeconds = 11;
-const sceneFrames = sceneSeconds * fps;
+const footagePath = 'video/raw/demo-footage.mp4';
+const narrationPath = 'audio/demo-narration.mp3';
 
 const projects: Project[] = [
-  {id: 'ScribeZeroDemo', name: 'ScribeZero', accent: '#2ddc91', accent2: '#f1fff6', bg: '#07140d', fg: '#f7fff9', scenes: [
-    {kind:'title', eyebrow:'Zero Cup judge demo', title:'Spoken care becomes patient-owned proof.', body:'A bilingual AI health scribe for Tamil and Hindi consults, built around private 0G receipts.'},
-    {kind:'problem', eyebrow:'Problem', title:'Care speaks local. Records do not.', body:'Clinical notes flatten local-language consults into trapped English summaries.', points:['Tamil / Hindi consults','Structured SOAP note','Portable private receipt']},
-    {kind:'product', eyebrow:'Product loop', title:'Listen. Structure. Seal. Verify.', body:'The doctor keeps the conversation natural while the patient receives a verifiable health-memory handle.', points:['Record consult','Generate SOAP','Seal on 0G','Verify privately']},
-    {kind:'placeholder', eyebrow:'Insert app footage 01', title:'Replace this window with: /app consult to SOAP note.', body:'Show sample consult playback, generated note, and completion state.', points:['22-27 seconds raw capture','Browser zoom 100 percent','Pause on structured output']},
-    {kind:'proof', eyebrow:'Why 0G', title:'Without 0G, this is just another note app.', body:'Compute gives neutral execution. Storage gives the ownership handle. Verification keeps content private.', points:['0G Compute','0G Storage','Private verification']},
-    {kind:'close', eyebrow:'Close', title:'ScribeZero turns spoken care into records patients can carry.', body:'Live app: scribezero.pages.dev'}]},
-  {id: 'WorldCupDemo', name: '0G World Cup', accent: '#d7ff4f', accent2: '#ecffe2', bg: '#051108', fg: '#ffffff', scenes: [
-    {kind:'title', eyebrow:'Zero Cup judge demo', title:'Fantasy football becomes a verifiable AI arena.', body:'Draft the best XI, simulate the match, and inspect proof behind the result.'},
-    {kind:'problem', eyebrow:'Problem', title:'Every fan has a best XI. Almost none can prove the game.', body:'0G World Cup turns the debate into a room-based game for humans and agents.', points:['8,379 player pool','Human and agent rooms','Shareable result cards']},
-    {kind:'product', eyebrow:'Product loop', title:'Draft. Simulate. Prove. Share.', body:'A full match loop with draft commitments, result pages, and proof artifacts.', points:['Create room','Draft XI','Run match','Inspect proof']},
-    {kind:'placeholder', eyebrow:'Insert app footage 01', title:'Replace this window with: draft room plus selected XI.', body:'Then cut to result page and proof packet scroll.', points:['Room creation','Final score','Storage and Agentic ID proof']},
-    {kind:'proof', eyebrow:'Why 0G', title:'The proof trail is the product.', body:'0G Storage, Galileo contracts, and Agentic ID make the game inspectable outside the UI.', points:['Draft logs','Escrow receipts','Agent identity']},
-    {kind:'close', eyebrow:'Close', title:'Playable for fans. Inspectable for judges. Built for agents.', body:'Live app: 0g-world-cup.pages.dev'}]},
-  {id: 'ArcadeArenaDemo', name: '0G Arcade Arena', accent: '#46ff9f', accent2: '#fff0a8', bg: '#030607', fg: '#ffffff', scenes: [
-    {kind:'title', eyebrow:'Zero Cup judge demo', title:'The open arcade for humans and ownable agents.', body:'A reusable game platform where matches, agents, replays, and proof receipts share one standard.'},
-    {kind:'problem', eyebrow:'Problem', title:'Agent games should not be one-off demos.', body:'They need reusable rooms, game packs, replay standards, and proof trails.', points:['Multiple games','Agent policies','Shared proof layer']},
-    {kind:'product', eyebrow:'Product loop', title:'Pick a game. Launch a room. Finish with evidence.', body:'Humans and agents can play under one arcade standard.', points:['Game grid','Agent match','Result proof','Submit game']},
-    {kind:'placeholder', eyebrow:'Insert app footage 01', title:'Replace this window with: game grid to live match.', body:'Show at least four games, an agent room, result, and proof explorer.', points:['Browse games','Start match','Open proof explorer']},
-    {kind:'proof', eyebrow:'Why 0G', title:'Each match can leave a replay trail outside the UI.', body:'Game packs, receipts, and compute/storage status are exposed for builders and judges.', points:['Game packs','Router Compute','Storage receipts']},
-    {kind:'close', eyebrow:'Close', title:'A game lobby that proves agents can play for real.', body:'Live app: 0g-arcade-arena.pages.dev'}]},
-  {id: 'LedgerZeroDemo', name: 'Ledger Zero', accent: '#d9b56f', accent2: '#f6f0e8', bg: '#06080b', fg: '#f6f0e8', scenes: [
-    {kind:'title', eyebrow:'Zero Cup judge demo', title:'AI workers should be assets, not rented sessions.', body:'A 0G marketplace where specialized AI workers carry memory, capability, ownership, and payout history.'},
-    {kind:'problem', eyebrow:'Problem', title:'Teams pay agents but cannot own the worker that learns.', body:'Memory, capabilities, and future revenue usually stay locked inside one platform.', points:['Locked memory','Opaque capability','No resale layer']},
-    {kind:'product', eyebrow:'Product loop', title:'Own. Operate. Trade.', body:'Register a worker, attach proof-backed job history, and transfer ownership with payout routing.', points:['Register manifest','Post job','Inspect proof','Transfer owner']},
-    {kind:'placeholder', eyebrow:'Insert app footage 01', title:'Replace this window with: marketplace to worker detail.', body:'Then show register flow, job posting, Proof Center, and profile ownership.', points:['Marketplace','Register worker','Proof Center']},
-    {kind:'proof', eyebrow:'Why 0G', title:'Proof makes this a market, not a directory.', body:'0G Storage carries worker artifacts while contracts and Proof Center explain ownership and state.', points:['WorkerINFT','0G artifacts','Payout routing']},
-    {kind:'close', eyebrow:'Close', title:'The marketplace layer for AI labor that can be owned, hired, and sold.', body:'Live app: ledgerzero.pages.dev'}]},
+  {
+    id: 'ScribeZeroDemo',
+    name: 'ScribeZero',
+    domain: 'scribezero.pages.dev',
+    logo: 'logo.png',
+    accent: '#2ddc91',
+    accent2: '#fff4b8',
+    bg: '#06110c',
+    fg: '#f7fff9',
+    durationSeconds: 47,
+    hook: 'Spoken care becomes patient-owned proof.',
+    subhook: 'Tamil and Hindi consults turn into structured private health records.',
+    problemTitle: 'Care speaks local. Records do not.',
+    problem:
+      'Doctors need natural conversations. Patients need records that survive apps, hospitals, and broken portals.',
+    demoTitle: 'Live flow: consult, dashboard, patients, records, verify.',
+    demoCaption: 'Screen-recorded from the deployed pages.dev app.',
+    proofTitle: 'The seal is the product.',
+    proof:
+      '0G storage gives the patient a portable ownership handle while the UI keeps private medical content out of the public proof.',
+    close: 'ScribeZero is a medical memory loop: consult, note, seal, verify.',
+    beats: ['Bilingual consult', 'SOAP note', 'Patient timeline'],
+    proofPoints: ['0G Storage receipt', 'Private verification', 'Portable patient handle'],
+  },
+  {
+    id: 'WorldCupDemo',
+    name: '0G World Cup',
+    domain: '0g-world-cup.pages.dev',
+    logo: 'logo.png',
+    accent: '#d7ff4f',
+    accent2: '#6fffd2',
+    bg: '#051108',
+    fg: '#ffffff',
+    durationSeconds: 41,
+    hook: 'Football arguments become an AI-native game.',
+    subhook: 'Draft a World Cup eleven, invite humans or agents, then inspect the result trail.',
+    problemTitle: 'Every fan has a best XI. Almost none can prove the match.',
+    problem:
+      '0G World Cup turns the debate into a room-based draft game with inspectable artifacts behind the score.',
+    demoTitle: 'Live flow: pitch, room creation, rooms, agents, board.',
+    demoCaption: 'Screen-recorded from the deployed pages.dev app.',
+    proofTitle: 'The proof trail is the product.',
+    proof:
+      'Draft commitments, match artifacts, agent identity, and result cards are exposed so judges can inspect more than a score.',
+    close: '0G World Cup is playable for fans and inspectable for judges.',
+    beats: ['Create room', 'Draft eleven', 'Inspect board'],
+    proofPoints: ['Draft commitment', 'Agent identity', 'Result artifact'],
+  },
+  {
+    id: 'ArcadeArenaDemo',
+    name: '0G Arcade Arena',
+    domain: '0g-arcade-arena.pages.dev',
+    logo: 'logo.jpg',
+    accent: '#46ff9f',
+    accent2: '#fff0a8',
+    bg: '#030607',
+    fg: '#ffffff',
+    durationSeconds: 44,
+    hook: 'Agent games need a real arena.',
+    subhook: 'Humans and AI agents play multiple games under one proof standard.',
+    problemTitle: 'Agent games should not be one-off demos.',
+    problem:
+      'Builders need reusable rooms, game packs, submission flow, agent identity, and replay receipts.',
+    demoTitle: 'Live flow: games, agents, submit, leaderboard, explorer.',
+    demoCaption: 'Screen-recorded from the deployed pages.dev app.',
+    proofTitle: 'Reuse is the advantage.',
+    proof:
+      'New games and agents can enter the same arena format, then leave receipts that remain inspectable outside the UI.',
+    close: 'Arcade Arena is a lobby for ownable agents: multiplayer, extensible, verifiable.',
+    beats: ['Game grid', 'Agent surfaces', 'Proof explorer'],
+    proofPoints: ['Game packs', 'Replay receipts', '0G proof layer'],
+  },
+  {
+    id: 'LedgerZeroDemo',
+    name: 'Ledger Zero',
+    domain: 'ledgerzero.pages.dev',
+    logo: 'logo.jpg',
+    accent: '#d9b56f',
+    accent2: '#7dd7ff',
+    bg: '#06080b',
+    fg: '#f6f0e8',
+    durationSeconds: 45,
+    hook: 'AI workers should be assets, not rented sessions.',
+    subhook: 'A 0G marketplace for worker memory, capability, ownership, and payout history.',
+    problemTitle: 'Teams pay agents but cannot own the worker that learns.',
+    problem:
+      'Memory, capability, and future revenue usually stay trapped inside one platform instead of becoming transferable labor.',
+    demoTitle: 'Live flow: marketplace, workers, register, jobs, proof.',
+    demoCaption: 'Screen-recorded from the deployed pages.dev app.',
+    proofTitle: 'Proof makes it a market.',
+    proof:
+      '0G storage keeps worker artifacts portable while ownership and payout state make the worker tradable.',
+    close: 'Ledger Zero is the marketplace layer for AI labor that can be owned, hired, and sold.',
+    beats: ['Worker marketplace', 'Register manifest', 'Proof center'],
+    proofPoints: ['Portable artifacts', 'Ownership state', 'Payout history'],
+  },
 ];
 
-const slash = (color: string) => ({backgroundImage: `linear-gradient(115deg, transparent 0 58%, ${color}22 58% 62%, transparent 62%), radial-gradient(circle at 78% 18%, ${color}44, transparent 26%)`});
+function fade(frame: number, start: number, end: number) {
+  return interpolate(frame, [start, end], [0, 1], {
+    extrapolateLeft: 'clamp',
+    extrapolateRight: 'clamp',
+  });
+}
 
-function SceneView({project, scene, index}: {project: Project; scene: Scene; index: number}) {
+function useEntrance(offset = 0) {
   const frame = useCurrentFrame();
   const {fps} = useVideoConfig();
-  const enter = spring({frame, fps, config: {damping: 18, stiffness: 80}});
-  const y = interpolate(enter, [0, 1], [46, 0]);
-  const opacity = interpolate(enter, [0, 1], [0, 1]);
-  const sweep = interpolate(frame, [0, sceneFrames], [-40, 115], {extrapolateRight: 'clamp'});
-  const placeholder = scene.kind === 'placeholder';
-  return <AbsoluteFill style={{background: project.bg, color: project.fg, overflow: 'hidden', fontFamily: 'Arial, Helvetica, sans-serif'}}>
-    <div style={{position:'absolute', inset:0, ...slash(project.accent)}} />
-    <div style={{position:'absolute', left:`${sweep}%`, top:0, width:180, height:'100%', transform:'skewX(-12deg)', background:`${project.accent}18`}} />
-    <div style={{position:'absolute', left:52, top:42, fontSize:14, letterSpacing:5, textTransform:'uppercase', color:project.accent, fontWeight:800}}>{String(index + 1).padStart(2, '0')} / {project.name} / {scene.eyebrow}</div>
-    <div style={{position:'absolute', left:72, top:118, width:placeholder ? 570 : 760, transform:`translateY(${y}px)`, opacity}}>
-      <div style={{fontSize:72, lineHeight:0.9, letterSpacing:-3, fontWeight:950}}>{scene.title}</div>
-      <div style={{marginTop:26, fontSize:25, lineHeight:1.35, color:project.fg + 'b8', maxWidth:740}}>{scene.body}</div>
-    </div>
-    {placeholder ? <div style={{position:'absolute', right:70, top:120, width:560, height:360, border:`3px dashed ${project.accent}`, background:'#0009', borderRadius:18, display:'flex', alignItems:'center', justifyContent:'center', padding:34, textAlign:'center', boxShadow:`0 0 60px ${project.accent}22`}}>
-      <div>
-        <div style={{fontSize:18, letterSpacing:4, color:project.accent, textTransform:'uppercase', fontWeight:900}}>App recording placeholder</div>
-        <div style={{marginTop:24, fontSize:42, lineHeight:1.05, fontWeight:950}}>Insert real screen capture here</div>
-        <div style={{marginTop:20, color:project.fg + 'aa', fontSize:22, lineHeight:1.3}}>The final story is already timed; replace this block with the clip named in docs/demo-video-plan.md.</div>
+  const value = spring({
+    frame: frame - offset,
+    fps,
+    config: {damping: 18, stiffness: 70, mass: 0.85},
+  });
+  return {
+    opacity: interpolate(value, [0, 1], [0, 1]),
+    transform: `translateY(${interpolate(value, [0, 1], [34, 0])}px)`,
+  };
+}
+
+function Background({project}: {project: Project}) {
+  const frame = useCurrentFrame();
+  const sweep = interpolate(frame, [0, project.durationSeconds * fps], [-20, 120]);
+
+  return (
+    <AbsoluteFill style={{background: project.bg, overflow: 'hidden'}}>
+      <div
+        style={{
+          position: 'absolute',
+          inset: 0,
+          background: `linear-gradient(120deg, ${project.bg} 0%, #050505 58%, ${project.accent}20 100%)`,
+        }}
+      />
+      <div
+        style={{
+          position: 'absolute',
+          left: `${sweep}%`,
+          top: -80,
+          width: 260,
+          height: 900,
+          transform: 'skewX(-13deg)',
+          background: `${project.accent}20`,
+        }}
+      />
+      <div
+        style={{
+          position: 'absolute',
+          inset: 0,
+          opacity: 0.22,
+          backgroundImage:
+            'linear-gradient(rgba(255,255,255,0.09) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.09) 1px, transparent 1px)',
+          backgroundSize: '58px 58px',
+        }}
+      />
+    </AbsoluteFill>
+  );
+}
+
+function Header({project}: {project: Project}) {
+  return (
+    <div style={{position: 'absolute', top: 34, left: 50, right: 50, display: 'flex', alignItems: 'center'}}>
+      <div
+        style={{
+          width: 58,
+          height: 58,
+          borderRadius: 14,
+          overflow: 'hidden',
+          background: '#fff',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <Img src={staticFile(project.logo)} style={{width: '100%', height: '100%', objectFit: 'cover'}} />
       </div>
-    </div> : null}
-    <div style={{position:'absolute', left:72, right:72, bottom:58, display:'grid', gridTemplateColumns:'repeat(3, 1fr)', gap:16}}>
-      {(scene.points ?? ['Judge hook','Live product','0G proof']).slice(0,3).map((point, i) => <div key={point} style={{border:`1px solid ${project.accent}55`, background: i === 0 ? project.accent : '#ffffff10', color: i === 0 ? '#050505' : project.fg, minHeight:104, padding:22, borderRadius:14}}>
-        <div style={{fontSize:13, letterSpacing:3, textTransform:'uppercase', opacity:0.75, fontWeight:900}}>Beat {i + 1}</div>
-        <div style={{marginTop:10, fontSize:24, lineHeight:1.1, fontWeight:900}}>{point}</div>
-      </div>)}
+      <div style={{marginLeft: 18}}>
+        <div style={{fontSize: 24, color: project.fg, fontWeight: 900}}>{project.name}</div>
+        <div style={{fontSize: 13, color: project.accent, fontWeight: 800, textTransform: 'uppercase', letterSpacing: 3}}>
+          Zero Cup judge demo
+        </div>
+      </div>
+      <div style={{marginLeft: 'auto', fontSize: 17, color: project.fg, opacity: 0.7}}>{project.domain}</div>
     </div>
-  </AbsoluteFill>;
+  );
+}
+
+function Pill({children, project, inverted = false}: {children: React.ReactNode; project: Project; inverted?: boolean}) {
+  return (
+    <div
+      style={{
+        minHeight: 78,
+        borderRadius: 10,
+        padding: '16px 18px',
+        border: `1px solid ${project.accent}66`,
+        color: inverted ? '#050505' : project.fg,
+        background: inverted ? project.accent : '#ffffff12',
+        display: 'flex',
+        alignItems: 'center',
+        fontSize: 24,
+        lineHeight: 1.08,
+        fontWeight: 900,
+      }}
+    >
+      {children}
+    </div>
+  );
+}
+
+function Intro({project}: {project: Project}) {
+  const enter = useEntrance();
+
+  return (
+    <AbsoluteFill>
+      <Background project={project} />
+      <Header project={project} />
+      <div style={{position: 'absolute', left: 70, right: 70, top: 160, ...enter}}>
+        <div style={{fontSize: 82, lineHeight: 0.93, color: project.fg, fontWeight: 950, maxWidth: 960}}>{project.hook}</div>
+        <div style={{marginTop: 26, fontSize: 28, lineHeight: 1.28, color: `${project.fg}c7`, maxWidth: 780}}>
+          {project.subhook}
+        </div>
+      </div>
+      <div style={{position: 'absolute', left: 70, right: 70, bottom: 58, display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16}}>
+        {project.beats.map((beat, index) => (
+          <Pill key={beat} project={project} inverted={index === 0}>
+            {beat}
+          </Pill>
+        ))}
+      </div>
+    </AbsoluteFill>
+  );
+}
+
+function Problem({project}: {project: Project}) {
+  const enter = useEntrance();
+
+  return (
+    <AbsoluteFill>
+      <Background project={project} />
+      <Header project={project} />
+      <div style={{position: 'absolute', left: 72, top: 150, width: 790, ...enter}}>
+        <div style={{fontSize: 18, color: project.accent, fontWeight: 900, textTransform: 'uppercase', letterSpacing: 4}}>Problem</div>
+        <div style={{marginTop: 20, fontSize: 62, lineHeight: 0.98, color: project.fg, fontWeight: 950}}>
+          {project.problemTitle}
+        </div>
+        <div style={{marginTop: 28, fontSize: 29, lineHeight: 1.28, color: `${project.fg}c5`}}>{project.problem}</div>
+      </div>
+      <div style={{position: 'absolute', right: 70, top: 178, width: 260, height: 320}}>
+        <div style={{position: 'absolute', inset: 0, border: `1px solid ${project.accent}55`, borderRadius: 12, background: '#ffffff0f'}} />
+        <div style={{position: 'absolute', left: 28, right: 28, top: 34, fontSize: 24, lineHeight: 1.1, color: project.fg, fontWeight: 900}}>
+          Judge lens
+        </div>
+        {['Need', 'Product', 'Proof'].map((item, index) => (
+          <div
+            key={item}
+            style={{
+              position: 'absolute',
+              left: 28,
+              right: 28,
+              top: 92 + index * 64,
+              borderTop: `1px solid ${project.accent}33`,
+              paddingTop: 14,
+              color: index === 2 ? project.accent : project.fg,
+              fontSize: 22,
+              fontWeight: 850,
+            }}
+          >
+            {item}
+          </div>
+        ))}
+      </div>
+    </AbsoluteFill>
+  );
+}
+
+function Demo({project}: {project: Project}) {
+  const frame = useCurrentFrame();
+  const {fps} = useVideoConfig();
+  const videoOpacity = fade(frame, 8, 22);
+  const labelOpacity = fade(frame, fps * 2, fps * 3);
+
+  return (
+    <AbsoluteFill>
+      <Background project={project} />
+      <Header project={project} />
+      <div style={{position: 'absolute', left: 54, right: 54, top: 100, bottom: 76}}>
+        <div
+          style={{
+            position: 'absolute',
+            left: 0,
+            right: 0,
+            top: 0,
+            height: 438,
+            borderRadius: 18,
+            background: '#050505',
+            border: `2px solid ${project.accent}80`,
+            boxShadow: `0 0 70px ${project.accent}24`,
+            overflow: 'hidden',
+            opacity: videoOpacity,
+          }}
+        >
+          <Video src={staticFile(footagePath)} muted style={{width: '100%', height: '100%', objectFit: 'cover'}} />
+          <div
+            style={{
+              position: 'absolute',
+              left: 22,
+              top: 22,
+              padding: '11px 14px',
+              borderRadius: 8,
+              background: 'rgba(0,0,0,0.72)',
+              color: project.accent,
+              fontSize: 16,
+              letterSpacing: 2,
+              textTransform: 'uppercase',
+              fontWeight: 950,
+            }}
+          >
+            Live deployed app footage
+          </div>
+          <div
+            style={{
+              position: 'absolute',
+              left: 22,
+              right: 22,
+              bottom: 18,
+              padding: '13px 16px',
+              borderRadius: 8,
+              background: 'rgba(0,0,0,0.74)',
+              color: project.fg,
+              fontSize: 22,
+              lineHeight: 1.1,
+              fontWeight: 900,
+            }}
+          >
+            {project.demoTitle}
+            <span style={{marginLeft: 12, color: `${project.fg}b8`, fontSize: 17, fontWeight: 750}}>
+              {project.demoCaption}
+            </span>
+          </div>
+        </div>
+        <div style={{position: 'absolute', left: 0, right: 0, bottom: 0, display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 14, opacity: labelOpacity}}>
+          {project.beats.map((beat, index) => (
+            <Pill key={beat} project={project} inverted={index === 1}>
+              {beat}
+            </Pill>
+          ))}
+        </div>
+      </div>
+    </AbsoluteFill>
+  );
+}
+
+function Proof({project}: {project: Project}) {
+  const enter = useEntrance();
+
+  return (
+    <AbsoluteFill>
+      <Background project={project} />
+      <Header project={project} />
+      <div style={{position: 'absolute', left: 72, top: 132, width: 720, ...enter}}>
+        <div style={{fontSize: 18, color: project.accent, fontWeight: 900, textTransform: 'uppercase', letterSpacing: 4}}>Why 0G</div>
+        <div style={{marginTop: 18, fontSize: 68, lineHeight: 0.96, color: project.fg, fontWeight: 950}}>{project.proofTitle}</div>
+        <div style={{marginTop: 26, fontSize: 28, lineHeight: 1.28, color: `${project.fg}c4`}}>{project.proof}</div>
+      </div>
+      <div style={{position: 'absolute', right: 70, top: 160, width: 360, display: 'grid', gap: 16}}>
+        {project.proofPoints.map((point, index) => (
+          <Pill key={point} project={project} inverted={index === 0}>
+            {point}
+          </Pill>
+        ))}
+      </div>
+    </AbsoluteFill>
+  );
+}
+
+function Close({project}: {project: Project}) {
+  const enter = useEntrance();
+
+  return (
+    <AbsoluteFill>
+      <Background project={project} />
+      <Header project={project} />
+      <div style={{position: 'absolute', left: 74, right: 74, top: 182, textAlign: 'center', ...enter}}>
+        <div style={{fontSize: 70, lineHeight: 0.98, color: project.fg, fontWeight: 950}}>{project.close}</div>
+        <div
+          style={{
+            display: 'inline-flex',
+            marginTop: 34,
+            minHeight: 76,
+            alignItems: 'center',
+            padding: '0 30px',
+            borderRadius: 10,
+            background: project.accent,
+            color: '#050505',
+            fontSize: 26,
+            fontWeight: 950,
+          }}
+        >
+          {project.domain}
+        </div>
+      </div>
+    </AbsoluteFill>
+  );
 }
 
 function DemoVideo({project}: {project: Project}) {
-  const frame = useCurrentFrame();
-  const sceneIndex = Math.min(project.scenes.length - 1, Math.floor(frame / sceneFrames));
-  return <SceneView project={project} scene={project.scenes[sceneIndex]} index={sceneIndex} />;
+  const intro = 6 * fps;
+  const problem = 8 * fps;
+  const proof = 7 * fps;
+  const close = 5 * fps;
+  const total = project.durationSeconds * fps;
+  const demo = total - intro - problem - proof - close;
+
+  return (
+    <AbsoluteFill style={{fontFamily: 'Arial, Helvetica, sans-serif'}}>
+      <Audio src={staticFile(narrationPath)} volume={0.98} />
+      <Sequence from={0} durationInFrames={intro}>
+        <Intro project={project} />
+      </Sequence>
+      <Sequence from={intro} durationInFrames={problem}>
+        <Problem project={project} />
+      </Sequence>
+      <Sequence from={intro + problem} durationInFrames={demo}>
+        <Demo project={project} />
+      </Sequence>
+      <Sequence from={intro + problem + demo} durationInFrames={proof}>
+        <Proof project={project} />
+      </Sequence>
+      <Sequence from={intro + problem + demo + proof} durationInFrames={close}>
+        <Close project={project} />
+      </Sequence>
+    </AbsoluteFill>
+  );
 }
 
 function Root() {
-  return <>
-    {projects.map((project) => <Composition key={project.id} id={project.id} component={() => <DemoVideo project={project} />} durationInFrames={project.scenes.length * sceneFrames} fps={fps} width={1280} height={720} />)}
-  </>;
+  return (
+    <>
+      {projects.map((project) => (
+        <Composition
+          key={project.id}
+          id={project.id}
+          component={() => <DemoVideo project={project} />}
+          durationInFrames={project.durationSeconds * fps}
+          fps={fps}
+          width={1280}
+          height={720}
+        />
+      ))}
+    </>
+  );
 }
 
 registerRoot(Root);
