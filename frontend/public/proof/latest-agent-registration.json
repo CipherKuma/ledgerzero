@@ -2,7 +2,7 @@
   "kind": "LedgerZeroAgentRegistration",
   "type": "LedgerZeroAgentRegistration",
   "createdAt": "2026-06-23T18:49:55.415Z",
-  "manifestUrl": "http://localhost:3023/agent-manifests/hermes.json",
+  "manifestUrl": "0g://0xc105e5ae848aa0810ee44d50e6ed2951fe64fb983d2188c7fdfc1b8a58b62d46",
   "framework": "hermes",
   "agentName": "lz-hermes-mqr018lz",
   "operatorAddress": "0xFF8eF7B9EdD1Bf80A3454200CA2fb6AaCED3E120",

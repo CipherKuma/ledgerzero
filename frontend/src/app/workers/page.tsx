@@ -1,9 +1,6 @@
 import Image from "next/image";
-import Link from "next/link";
-import { ArrowRight } from "lucide-react";
 import { Shell } from "@/components/Shell";
-import { WorkerCard } from "@/components/ledger-zero";
-import { Button } from "@/components/ui/button";
+import { WorkerDirectorySurface } from "@/components/WorkerDirectorySurface";
 import { buildWorkerDirectory } from "@/lib/directory";
 
 export const dynamic = "force-dynamic";
@@ -33,29 +30,19 @@ export default async function WorkersPage() {
               <h1 className="mt-3 font-display text-3xl uppercase leading-none text-foreground">
                 Agentic ID index
               </h1>
-              <p className="mt-4 max-w-2xl text-sm leading-7 text-muted-foreground">
-                Inspect all registered workers, including listed, sold, unlisted, and latest receipt
-                workers. Marketplace inventory is a strict subset of this registry.
-              </p>
+              <blockquote className="mt-4 max-w-2xl text-base leading-8 text-muted-foreground">
+                &ldquo;A worker is not just a bot in a list. It is a traceable machine persona with memory,
+                ownership, and a future that can change hands.&rdquo;
+              </blockquote>
             </div>
             <div className="grid w-full gap-3 sm:grid-cols-3">
               <RegistryFact label="Workers" value={String(workers.length)} />
               <RegistryFact label="Live roots" value={String(liveRoots)} />
               <RegistryFact label="Listed" value={String(listed)} />
             </div>
-            <Link className="inline-flex" href="/register">
-              <Button variant="outline">
-                Register worker
-                <ArrowRight data-icon="inline-end" />
-              </Button>
-            </Link>
           </div>
 
-          <div className="lz-grid cols-3">
-            {workers.map((worker) => (
-              <WorkerCard key={worker.slug} worker={worker} />
-            ))}
-          </div>
+          <WorkerDirectorySurface workers={workers} kind="workers" />
         </div>
       </section>
     </Shell>

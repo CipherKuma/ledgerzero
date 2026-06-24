@@ -149,7 +149,16 @@ function normalizeDemoFlowReceipt(raw: unknown): DemoFlowReceipt {
 export async function readLatestDemoAttempt() {
   try {
     const file = path.join(process.cwd(), "public", "proof", "latest-demo-attempt.json");
-    return JSON.parse(await fs.readFile(file, "utf8")) as DemoFlowAttempt;
+    const attempt = JSON.parse(await fs.readFile(file, "utf8")) as DemoFlowAttempt;
+    const createdAt = Date.parse(attempt.createdAt);
+    const staleRunningAttempt =
+      attempt.status === "running" && Number.isFinite(createdAt) && Date.now() - createdAt > 5 * 60 * 1000;
+    if (!staleRunningAttempt) return attempt;
+    return {
+      ...attempt,
+      status: "failed",
+      error: "The previous full-demo server run was interrupted before it returned a receipt.",
+    } satisfies DemoFlowAttempt;
   } catch {
     return null;
   }

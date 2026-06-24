@@ -92,10 +92,12 @@ function latestReceiptArtifacts(receipt: DemoFlowReceipt): ProofArtifact[] {
 }
 
 export default async function ProofPage() {
-  const zeroG = await getZeroGStatus();
-  const latestAgent = await readLatestAgentRegistration();
-  const latestDemoFlow = await readLatestDemoFlow();
-  const latestAttempt = await readLatestDemoAttempt();
+  const [zeroG, latestAgent, latestDemoFlow, latestAttempt] = await Promise.all([
+    getZeroGStatus({ timeoutMs: 1_800 }),
+    readLatestAgentRegistration(),
+    readLatestDemoFlow(),
+    readLatestDemoAttempt(),
+  ]);
   const effectiveAttempt =
     latestAttempt ??
     (latestDemoFlow

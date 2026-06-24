@@ -12,8 +12,8 @@ export type ComputeProof = {
   signature?: string;
 };
 
-const ROUTER_URL = process.env.ZEROG_COMPUTE_ROUTER ?? "https://router-api.0g.ai/v1";
-export const ROUTER_MODEL = process.env.ZEROG_COMPUTE_MODEL ?? "0gm-1.0-35b-a3b";
+const ROUTER_URL = process.env.ZEROG_COMPUTE_ROUTER ?? "https://router-api-testnet.integratenetwork.work/v1";
+export const ROUTER_MODEL = process.env.ZEROG_COMPUTE_MODEL ?? "qwen2.5-omni";
 
 let brokerPromise: Promise<unknown> | null = null;
 

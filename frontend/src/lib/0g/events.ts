@@ -1,10 +1,13 @@
 import { ethers } from "ethers";
 import { contractAddresses, hasContractAddress } from "@/lib/contracts";
+import { envNumber, withTimeout } from "@/lib/server/perf";
 import { getProvider } from "./server";
 
 const transferInterface = new ethers.Interface([
   "event Transfer(address indexed from,address indexed to,uint256 indexed tokenId)",
 ]);
+
+const activityCache = new Map<string, { value: ChainAccountActivity; expiresAt: number }>();
 
 const marketplaceInterface = new ethers.Interface([
   "event WorkerListed(uint256 indexed tokenId,address indexed seller,uint256 price)",
@@ -45,7 +48,8 @@ function topicAddress(address: string) {
 
 async function getLogs(address: string, topics: Array<string | string[] | null>, fromBlock: number) {
   try {
-    return await getProvider().getLogs({ address, fromBlock, toBlock: "latest", topics });
+    const timeoutMs = envNumber("LEDGER_ZERO_LOG_TIMEOUT_MS", 1_200);
+    return await withTimeout(getProvider().getLogs({ address, fromBlock, toBlock: "latest", topics }), [], timeoutMs);
   } catch {
     return [];
   }
@@ -53,6 +57,10 @@ async function getLogs(address: string, topics: Array<string | string[] | null>,
 
 export async function getOnChainAccountActivity(address: string): Promise<ChainAccountActivity> {
   const account = ethers.getAddress(address);
+  const cacheKey = `${account}:${eventFromBlock()}`;
+  const cached = activityCache.get(cacheKey);
+  if (cached && cached.expiresAt > Date.now()) return cached.value;
+
   const fromBlock = eventFromBlock();
   const notes: string[] = [];
   const activity: ChainAccountActivity = {
@@ -182,5 +190,9 @@ export async function getOnChainAccountActivity(address: string): Promise<ChainA
   activity.marketplace.sort((a, b) => b.blockNumber - a.blockNumber);
   activity.postedTasks.sort((a, b) => b.blockNumber - a.blockNumber);
   activity.releases.sort((a, b) => b.blockNumber - a.blockNumber);
+  activityCache.set(cacheKey, {
+    value: activity,
+    expiresAt: Date.now() + envNumber("LEDGER_ZERO_ACTIVITY_CACHE_MS", 30_000),
+  });
   return activity;
 }

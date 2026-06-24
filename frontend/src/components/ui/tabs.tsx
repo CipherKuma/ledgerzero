@@ -41,7 +41,7 @@ function Tabs({
 
   return (
     <TabsContext.Provider value={{ value: selected, setValue }}>
-      <div data-slot="tabs" className={cn("flex flex-col gap-4", className)}>
+      <div data-slot="tabs" className={cn("flex min-w-0 flex-col gap-4", className)}>
         {children}
       </div>
     </TabsContext.Provider>
@@ -53,7 +53,7 @@ function TabsList({ className, ...props }: React.ComponentProps<"div">) {
     <div
       data-slot="tabs-list"
       className={cn(
-        "flex w-full gap-1 overflow-x-auto rounded-lg bg-muted p-1",
+        "flex w-full max-w-full min-w-0 flex-wrap gap-1 overflow-hidden rounded-lg bg-muted p-1",
         className,
       )}
       role="tablist"
@@ -103,7 +103,7 @@ function TabsContent({
     <div
       data-slot="tabs-content"
       role="tabpanel"
-      className={cn("outline-none", className)}
+      className={cn("min-w-0 outline-none", className)}
       {...props}
     >
       {children}

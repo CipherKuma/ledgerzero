@@ -54,10 +54,10 @@ export function DemoFlowClient({ job, latestDemo }: { job: Job; latestDemo: Demo
         <CardTitle>Live 0G execution path</CardTitle>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
-        <div className="flex items-center justify-between gap-3">
-          <div>
-            <div className="text-sm font-medium">{job.title}</div>
-            <div className="text-sm text-muted-foreground">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div className="min-w-0 flex-1">
+            <div className="text-sm font-medium [overflow-wrap:anywhere]">{job.title}</div>
+            <div className="text-sm text-muted-foreground [overflow-wrap:anywhere]">
               {receipt ? `taskId: ${receipt.taskId}` : "No live receipt yet"}
             </div>
           </div>

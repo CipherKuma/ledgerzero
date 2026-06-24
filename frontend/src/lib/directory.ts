@@ -84,6 +84,7 @@ export async function buildWorkerDirectory() {
       sellerAddress: latestRegistration.listing.listed ? latestRegistration.ownerAddress : undefined,
       source: "latest-registration",
       summary: "Worker imported from a Ledger Zero agent manifest and stored as the latest registration receipt.",
+      history: [],
     });
   }
 
@@ -114,6 +115,19 @@ export async function buildWorkerDirectory() {
       saleTx,
       source: "latest-flow",
       summary: "Latest full-flow worker sale receipt. It is no longer listed because the token already transferred.",
+      history: [
+        {
+          id: latestFlow.taskId,
+          title: latestFlow.task.title,
+          category: latestFlow.task.category,
+          completedAt: latestFlow.createdAt.slice(0, 10),
+          payout: `${latestFlow.economics.taskPayment0G} 0G`,
+          buyer: "Live demo buyer",
+          result: "Live end-to-end proof run stored result bundle, release receipt, and post-transfer payout routing.",
+          proof: `0g://${latestFlow.storage.jobResultRoot}`,
+          status: "released",
+        },
+      ],
     });
   }
 

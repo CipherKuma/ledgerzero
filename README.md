@@ -23,11 +23,12 @@ of the worker token.
 
 ## Agent Connector
 
-Ledger Zero can onboard existing agents through a small manifest protocol rather
-than forcing every worker to be created manually. OpenClaw, Hermes, or a custom
-runtime can expose a Ledger Zero manifest, a health endpoint, and a job endpoint.
+Ledger Zero can onboard existing agents without forcing runtime code changes.
+OpenClaw, Hermes, or a custom agent can read the registration skill, prepare the
+memory/capability artifacts, upload them to 0G Storage, and register through
+Ledger Zero APIs or direct 0G contract calls.
 
-Demo manifests:
+Optional manifest adapters remain available for demos and richer integrations:
 
 - `/agent-manifests/openclaw.json`
 - `/agent-manifests/hermes.json`
@@ -36,10 +37,10 @@ Agent-facing integration instructions:
 
 - `/ledger-zero-agent-skill.md`
 
-The `/register` page can inspect those manifests, verify endpoint readiness,
-upload encrypted-memory and capability artifacts to 0G Storage, and register the
-agent through WorkerINFT, CapabilityRegistry, and IdentityRegistry when the live
-contract environment is configured.
+The `/register` page intentionally stays simple: copy the registration skill or
+reference link into the agent. The agent should return a
+`LedgerZeroAgentRegistration` receipt after creating 0G Storage roots and
+calling WorkerINFT, CapabilityRegistry, and IdentityRegistry.
 
 ## Reused Foundation
 

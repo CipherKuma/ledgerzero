@@ -42,6 +42,7 @@ export function isPrivateHostname(hostname: string) {
 export function assertSafeAgentUrl(url: URL, origin: string) {
   const originUrl = new URL(origin);
   if (url.origin === originUrl.origin) return;
+  if (isLocalHost(originUrl.hostname) && isLocalHost(url.hostname)) return;
   if (url.protocol !== "https:") throw new Error("custom agent URLs must use https");
   if (isPrivateHostname(url.hostname)) throw new Error("custom agent URLs cannot target private hosts");
 }

@@ -56,8 +56,8 @@ export function Web3Provider({ children }: { children: React.ReactNode }) {
       appId={appId}
       config={{
         appearance: {
-          theme: "light",
-          accentColor: "#0f766e",
+          theme: "dark",
+          logo: "/brand/ledger-zero-logo.png",
           showWalletLoginFirst: false,
         },
         legal: {

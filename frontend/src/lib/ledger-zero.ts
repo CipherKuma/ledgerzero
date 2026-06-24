@@ -21,6 +21,17 @@ export type Worker = {
   listingStatus?: "listed" | "sold" | "not-listed" | "blocked";
   listingSource?: string;
   summary: string;
+  history: Array<{
+    id: string;
+    title: string;
+    category: string;
+    completedAt: string;
+    payout: string;
+    buyer: string;
+    result: string;
+    proof: string;
+    status: "settled" | "delivered" | "released";
+  }>;
 };
 
 export type Job = {
@@ -65,6 +76,41 @@ export const workers: Worker[] = [
     listed: true,
     summary:
       "A research operator with stored memory, reputation history, and payout routing attached to the iNFT.",
+    history: [
+      {
+        id: "atlas-047",
+        title: "0G ecosystem risk brief",
+        category: "Research",
+        completedAt: "2026-06-24",
+        payout: "2.4 0G",
+        buyer: "Foundation strategy desk",
+        result: "Delivered a cited risk memo with mitigation paths, confidence bands, and dependency map.",
+        proof: "0g://0x276c5a0616d6172fcd7b16feafb0feb35efb2de9e1966fe7b74aea4204ed245c",
+        status: "released",
+      },
+      {
+        id: "atlas-046",
+        title: "Compute router vendor audit",
+        category: "Vendor diligence",
+        completedAt: "2026-06-18",
+        payout: "1.9 0G",
+        buyer: "Infra operator",
+        result: "Compared router reliability, model drift exposure, and failover posture across providers.",
+        proof: "0g://atlas-router-audit-046",
+        status: "settled",
+      },
+      {
+        id: "atlas-045",
+        title: "Token launch narrative review",
+        category: "Narrative",
+        completedAt: "2026-06-11",
+        payout: "1.3 0G",
+        buyer: "Growth team",
+        result: "Restructured launch messaging into claims, evidence, and risk disclosures for public release.",
+        proof: "0g://atlas-launch-review-045",
+        status: "delivered",
+      },
+    ],
   },
   {
     slug: "worker-002",
@@ -86,6 +132,30 @@ export const workers: Worker[] = [
     listed: true,
     summary:
       "A revenue worker tuned for pipeline cleanup and repeatable outbound analysis.",
+    history: [
+      {
+        id: "kite-031",
+        title: "Lead scoring cleanup sprint",
+        category: "Growth ops",
+        completedAt: "2026-06-20",
+        payout: "1.1 0G",
+        buyer: "RevOps desk",
+        result: "Ranked pipeline by fit, disqualified stale leads, and generated next-contact sequences.",
+        proof: "0g://kite-growth-031",
+        status: "released",
+      },
+      {
+        id: "kite-030",
+        title: "Outbound QA sweep",
+        category: "Campaign QA",
+        completedAt: "2026-06-14",
+        payout: "0.8 0G",
+        buyer: "Growth team",
+        result: "Flagged broken sequences, duplicate sends, and enrichment gaps across launch cohorts.",
+        proof: "0g://kite-growth-030",
+        status: "settled",
+      },
+    ],
   },
   {
     slug: "worker-003",
@@ -107,6 +177,30 @@ export const workers: Worker[] = [
     listed: false,
     summary:
       "A code-review worker whose proof bundle is present, while live compute routing is blocked locally.",
+    history: [
+      {
+        id: "forge-026",
+        title: "Escrow payout path review",
+        category: "Contracts",
+        completedAt: "2026-06-17",
+        payout: "2.8 0G",
+        buyer: "Protocol team",
+        result: "Reviewed release logic, ownership resolution, and sale-path edge cases for payout safety.",
+        proof: "0g://forge-solidity-026",
+        status: "delivered",
+      },
+      {
+        id: "forge-025",
+        title: "Threat model for worker transfers",
+        category: "Security",
+        completedAt: "2026-06-08",
+        payout: "2.2 0G",
+        buyer: "Marketplace team",
+        result: "Mapped spoofed listing, stale approval, and replay surfaces around ownership transfer.",
+        proof: "0g://forge-solidity-025",
+        status: "settled",
+      },
+    ],
   },
 ];
 
@@ -231,9 +325,9 @@ export const proofArtifacts: ProofArtifact[] = [
   {
     layer: "0G Compute",
     artifact: "Compute run",
-    value: "0gm-1.0-35b-a3b / 0x4870...a4E9",
+    value: "qwen2.5-omni / 0xa48f...7836",
     status: "live",
-    note: "Worker execution returned a routed 0G Compute response.",
+    note: "Worker execution returned a routed 0G testnet Compute response.",
   },
   {
     layer: "CapabilityRegistry",

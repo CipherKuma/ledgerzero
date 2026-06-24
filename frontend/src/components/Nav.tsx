@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCreateWallet, usePrivy, useWallets } from "@privy-io/react-auth";
 import { useBalance, useChainId, useSwitchChain } from "wagmi";
 import { formatUnits } from "viem";
-import { Menu, Wallet } from "lucide-react";
+import { Check, Copy, Menu, Wallet } from "lucide-react";
 import { galileo } from "@/lib/chains";
 import { BrandLockup } from "@/components/BrandLogo";
 import { Button } from "@/components/ui/button";
@@ -52,7 +52,7 @@ export function Nav() {
           <BrandLockup />
         </Link>
 
-        <nav className="hidden items-center gap-5 md:flex" aria-label="Primary">
+        <nav className="hidden items-center gap-5 lg:flex" aria-label="Primary">
           {links.map((link) => (
             <Link
               key={link.href}
@@ -65,9 +65,9 @@ export function Nav() {
           ))}
         </nav>
 
-        <div className="hidden items-center gap-2 md:flex">{wallet}</div>
+        <div className="hidden items-center gap-2 lg:flex">{wallet}</div>
 
-        <div className="md:hidden">
+        <div className="lg:hidden">
           <Sheet>
             <SheetTrigger render={<Button variant="outline" size="icon" aria-label="Open navigation" />}>
               <Menu />
@@ -166,18 +166,46 @@ function WalletControl({
   if (resolvingWallet) return <Badge variant="secondary">setting up wallet</Badge>;
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger render={<Button variant="outline" data-testid="wallet-control" />}>
-        <Wallet data-icon="inline-start" />
-        {balanceText}
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        <DropdownMenuItem disabled data-testid="wallet-address">
+    <div className="flex items-center gap-2">
+      <DropdownMenu>
+        <DropdownMenuTrigger render={<Button variant="outline" data-testid="wallet-control" />}>
+          <Wallet data-icon="inline-start" />
           {shortAddr(address)}
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={exportWallet}>Manage Wallet</DropdownMenuItem>
-        <DropdownMenuItem onClick={logout}>Disconnect</DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem disabled data-testid="wallet-address" title={address}>
+            {shortAddr(address)}
+          </DropdownMenuItem>
+          <CopyAddressItem address={address} />
+          <DropdownMenuItem onClick={exportWallet}>Manage Wallet</DropdownMenuItem>
+          <DropdownMenuItem onClick={logout}>Disconnect</DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+      <div
+        className="inline-flex h-9 items-center rounded-md border bg-background/70 px-3 text-sm font-medium text-foreground"
+        aria-label={`0G balance ${balanceText}`}
+        data-testid="wallet-balance"
+      >
+        {balanceText}
+      </div>
+    </div>
+  );
+}
+
+function CopyAddressItem({ address }: { address?: string }) {
+  const [copied, setCopied] = useState(false);
+
+  async function copyAddress() {
+    if (!address) return;
+    await navigator.clipboard.writeText(address);
+    setCopied(true);
+    window.setTimeout(() => setCopied(false), 1400);
+  }
+
+  return (
+    <DropdownMenuItem onClick={copyAddress}>
+      {copied ? <Check data-icon="inline-start" /> : <Copy data-icon="inline-start" />}
+      {copied ? "Copied address" : "Copy address"}
+    </DropdownMenuItem>
   );
 }

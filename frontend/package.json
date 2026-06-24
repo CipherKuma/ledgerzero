@@ -15,6 +15,7 @@
     "test:e2e": "playwright test",
     "test:0g:api": "node ../scripts/test-0g-api.mjs",
     "test:agents": "node ../scripts/test-agent-connectors.mjs",
+    "agent:openclaw": "node ../scripts/openclaw-demo-agent.mjs",
     "test:demo": "node ../scripts/test-demo-flow.mjs",
     "test:0g:contracts": "node ../scripts/test-0g-live-contracts.mjs",
     "test:0g:marketplace": "node ../scripts/test-0g-marketplace-live.mjs",

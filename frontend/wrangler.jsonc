@@ -12,7 +12,7 @@
   "vars": {
     "ZEROG_RPC": "https://evmrpc-testnet.0g.ai",
     "ZEROG_INDEXER": "https://indexer-storage-testnet-turbo.0g.ai",
-    "ZEROG_COMPUTE_ROUTER": "https://router-api.0g.ai/v1",
+    "ZEROG_COMPUTE_ROUTER": "https://router-api-testnet.integratenetwork.work/v1",
     "ZEROG_COMPUTE_MODEL": "glm-5.2"
   }
 }

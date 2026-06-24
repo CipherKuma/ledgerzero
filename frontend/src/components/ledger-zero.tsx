@@ -282,45 +282,125 @@ export function DemoMoment({
   taskId,
   payoutRecipientBefore,
   payoutRecipientAfter,
+  releaseTx,
 }: {
   ownerBefore: string;
   ownerAfter: string;
   taskId: string;
   payoutRecipientBefore: string;
   payoutRecipientAfter: string;
+  releaseTx?: string;
 }) {
   return (
-    <Card>
-      <CardHeader>
-        <CardDescription>Signature demo</CardDescription>
-        <CardTitle>Transfer changes the next payout.</CardTitle>
-      </CardHeader>
-      <CardContent className="grid gap-4 md:grid-cols-[1fr_auto_1fr] md:items-center">
-        <OwnerBox title="Before transfer" owner={ownerBefore} payout={payoutRecipientBefore} />
-        <div className="hidden justify-center md:flex">
-          <ArrowRight className="text-muted-foreground" />
+    <Card className="lz-demo-card overflow-hidden">
+      <CardHeader className="lz-demo-header">
+        <div>
+          <CardDescription>Signature demo</CardDescription>
+          <CardTitle>Transfer changes the next payout.</CardTitle>
         </div>
-        <OwnerBox title="After transfer" owner={ownerAfter} payout={payoutRecipientAfter} />
-        <div className="md:col-span-3 lz-panel rounded-lg p-4 text-sm">
-          <span className="lz-kicker">Task</span>
-          <div className="lz-mono mt-1">{taskId}</div>
+        <div className="lz-demo-live" aria-label="Animated demo state">
+          <span />
+          Live settlement circuit
+        </div>
+      </CardHeader>
+
+      <CardContent className="lz-demo-content">
+        <div className="lz-demo-flow" aria-label="Worker transfer changes payout recipient">
+          <OwnerBox
+            step="01"
+            title="Before transfer"
+            label="Current owner"
+            owner={ownerBefore}
+            payout={payoutRecipientBefore}
+          />
+
+          <div className="lz-demo-transfer" aria-label="Worker token transfer animation">
+            <div className="lz-demo-rail" />
+            <div className="lz-demo-pulse">
+              <WalletCards className="size-4" />
+            </div>
+            <div className="lz-demo-arrow">
+              <ArrowRight className="size-5" />
+              <span>worker token moves</span>
+            </div>
+          </div>
+
+          <OwnerBox
+            step="02"
+            title="After transfer"
+            label="New owner"
+            owner={ownerAfter}
+            payout={payoutRecipientAfter}
+            active
+          />
+        </div>
+
+        <div className="lz-demo-resolver">
+          <div className="lz-demo-resolver-main">
+            <div className="lz-kicker">Escrow resolver</div>
+            <div className="lz-demo-resolver-title">Payout recipient resolves</div>
+            <p>
+              <code>payoutRecipient(taskId)</code> does not follow the original seller. It resolves through
+              ownerOf(workerTokenId) at settlement time.
+            </p>
+          </div>
+          <div className="lz-demo-output">
+            <span>before</span>
+            <strong>{payoutRecipientBefore}</strong>
+            <span>after transfer</span>
+            <strong className="text-accent">{payoutRecipientAfter}</strong>
+          </div>
+        </div>
+
+        <div className="lz-demo-proof-row" aria-label="Signature demo proof artifacts">
+          <div>
+            <span>Task</span>
+            <strong>{taskId}</strong>
+          </div>
+          <div>
+            <span>Settlement</span>
+            <strong>{releaseTx ? releaseTx : "seeded demo"}</strong>
+          </div>
+          <div>
+            <span>Rule</span>
+            <strong>ownerOf(workerTokenId)</strong>
+          </div>
         </div>
       </CardContent>
     </Card>
   );
 }
 
-function OwnerBox({ title, owner, payout }: { title: string; owner: string; payout: string }) {
+function OwnerBox({
+  step,
+  title,
+  label,
+  owner,
+  payout,
+  active = false,
+}: {
+  step: string;
+  title: string;
+  label: string;
+  owner: string;
+  payout: string;
+  active?: boolean;
+}) {
   return (
-    <div className="lz-panel rounded-lg p-4">
-      <div className="mb-3 flex items-center gap-2">
-        <WalletCards className="size-4 text-primary" />
-        <span className="text-sm font-medium">{title}</span>
+    <div className={active ? "lz-demo-owner is-active" : "lz-demo-owner"}>
+      <div className="lz-demo-owner-top">
+        <span>{step}</span>
+        <div>
+          <div>{title}</div>
+          <small>{label}</small>
+        </div>
+        <WalletCards className="size-4" />
       </div>
-      <div className="lz-mono lz-artifact text-sm">{owner}</div>
-      <div className="mt-3 flex items-center gap-2 text-sm text-muted-foreground">
+      <div className="lz-demo-address lz-mono lz-artifact">{owner}</div>
+      <div className="lz-demo-payout">
         <ShieldCheck className="size-4" />
-        payoutRecipient {"->"} {payout}
+        <span>payoutRecipient</span>
+        <strong>{payout}</strong>
       </div>
     </div>
   );

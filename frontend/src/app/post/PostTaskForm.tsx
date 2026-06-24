@@ -4,6 +4,9 @@ import * as React from "react";
 import { useRouter } from "next/navigation";
 import { ArrowRight, X } from "lucide-react";
 import { toast } from "sonner";
+import { usePrivy, useWallets } from "@privy-io/react-auth";
+import { useBalance, useChainId, useSwitchChain, useWaitForTransactionReceipt, useWriteContract } from "wagmi";
+import { formatUnits, keccak256, parseEther, toBytes, type Hex } from "viem";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,12 +18,37 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { galileo } from "@/lib/chains";
+import { contractAddresses } from "@/lib/contracts";
 
 const categories = ["Research", "Smart contracts", "Growth ops", "Data labeling", "Agent QA"];
 const times = ["09:00 UTC", "12:00 UTC", "15:00 UTC", "18:00 UTC", "21:00 UTC"];
+const escrowAbi = [
+  {
+    type: "function",
+    name: "postTask",
+    stateMutability: "payable",
+    inputs: [
+      { name: "taskId", type: "bytes32" },
+      { name: "payment", type: "uint256" },
+      { name: "deadline", type: "uint256" },
+      { name: "minReputation", type: "uint256" },
+    ],
+    outputs: [],
+  },
+] as const;
+const GAS_BUFFER = parseEther("0.0002");
 
 export function PostTaskForm() {
   const router = useRouter();
+  const { ready, authenticated, login } = usePrivy();
+  const { wallets } = useWallets();
+  const activeWallet = wallets[0];
+  const address = activeWallet?.address as `0x${string}` | undefined;
+  const chainId = useChainId();
+  const { switchChainAsync } = useSwitchChain();
+  const { writeContractAsync } = useWriteContract();
+  const { data: balance } = useBalance({ address, chainId: galileo.id });
   const [tags, setTags] = React.useState(["risk", "citations"]);
   const [draftTag, setDraftTag] = React.useState("");
   const [title, setTitle] = React.useState("Produce a diligence memo for a 0G ecosystem partner");
@@ -34,7 +62,18 @@ export function PostTaskForm() {
   const [deadlineTime, setDeadlineTime] = React.useState("18:00 UTC");
   const [minimumReputation, setMinimumReputation] = React.useState("0");
   const [running, setRunning] = React.useState(false);
+  const [txHash, setTxHash] = React.useState<Hex | undefined>();
   const [error, setError] = React.useState("");
+  const { isLoading: confirming, isSuccess: confirmed } = useWaitForTransactionReceipt({
+    hash: txHash,
+    chainId: galileo.id,
+  });
+
+  React.useEffect(() => {
+    if (!confirmed || !txHash) return;
+    toast.success("Escrow transaction confirmed");
+    router.push(`/jobs/task-risk-brief?posted=${txHash}`);
+  }, [confirmed, router, txHash]);
 
   function commitTag(raw: string) {
     const next = raw.trim().replace(/,$/, "");
@@ -46,31 +85,80 @@ export function PostTaskForm() {
     setTags((current) => current.filter((item) => item !== tag));
   }
 
+  function parseDeadline() {
+    const time = deadlineTime.replace(" UTC", "");
+    const deadlineMs = Date.parse(`${deadlineDate}T${time}:00.000Z`);
+    if (!Number.isFinite(deadlineMs)) throw new Error("Choose a valid UTC deadline.");
+    const deadline = Math.floor(deadlineMs / 1000);
+    if (deadline <= Math.floor(Date.now() / 1000) + 300) {
+      throw new Error("Deadline must be at least five minutes in the future.");
+    }
+    return BigInt(deadline);
+  }
+
+  function parseMinimumReputation() {
+    if (!/^\d+$/.test(minimumReputation.trim())) throw new Error("Minimum reputation must be a whole number.");
+    return BigInt(minimumReputation.trim());
+  }
+
+  function balanceText() {
+    if (!balance) return "unknown";
+    return `${Number(formatUnits(balance.value, balance.decimals)).toFixed(6)} ${balance.symbol}`;
+  }
+
   async function submitTask(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setRunning(true);
-    setError("");
+    if (!ready) return;
+    if (!authenticated) {
+      login();
+      return;
+    }
+    if (!address) {
+      setError("Wallet is still being created by Privy. Try again in a moment.");
+      return;
+    }
+    if (!/^0x[a-fA-F0-9]{40}$/.test(contractAddresses.escrow)) {
+      setError("LedgerEscrow contract is not configured.");
+      return;
+    }
+
     try {
-      const res = await fetch("/api/demo/full-flow", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          preset: "hermes",
-          runCompute: true,
-          taskTitle: title,
-          taskDescription: `${description}\nDeadline: ${deadlineDate} ${deadlineTime}\nMinimum reputation: ${minimumReputation}`,
-          taskCategory: category,
-          taskTags: tags,
-          taskPayment0G: payout,
-          bondAmount0G: bond,
-        }),
+      setRunning(true);
+      setError("");
+      setTxHash(undefined);
+      const payment = parseEther(payout);
+      const bondWei = parseEther(bond);
+      if (payment <= 0n) throw new Error("Payout must be greater than zero.");
+      if (bondWei >= payment) throw new Error("Bond must be smaller than payout.");
+      if (!balance) throw new Error("Wallet balance is still loading. Try again in a moment.");
+      const required = payment + GAS_BUFFER;
+      if (balance.value < required) {
+        throw new Error(
+          `Connected wallet has ${balanceText()}; posting needs at least ${formatUnits(required, balance.decimals)} ${balance.symbol} including gas buffer.`,
+        );
+      }
+      const deadline = parseDeadline();
+      const taskId = keccak256(toBytes(`ledger-zero:${address}:${Date.now()}:${title}:${description}`));
+      if (chainId !== galileo.id) {
+        await switchChainAsync({ chainId: galileo.id });
+      }
+      const hash = await writeContractAsync({
+        address: contractAddresses.escrow as `0x${string}`,
+        abi: escrowAbi,
+        functionName: "postTask",
+        args: [taskId, payment, deadline, parseMinimumReputation()],
+        value: payment,
+        chainId: galileo.id,
       });
-      const body = (await res.json().catch(() => null)) as { error?: string } | null;
-      if (!res.ok) throw new Error(body?.error ?? `request failed: ${res.status}`);
-      toast.success("Escrow flow receipt recorded");
-      router.push("/jobs/task-risk-brief?demo=live");
+      setTxHash(hash);
+      toast.success("Escrow transaction submitted");
     } catch (submitError) {
-      const message = (submitError as Error).message;
+      const raw = (submitError as Error).message;
+      const message = raw.includes("User rejected")
+        ? "Transaction was rejected in the wallet."
+        : raw.includes("insufficient funds")
+          ? `Connected wallet has ${balanceText()}; add 0G testnet funds and try again.`
+          : raw;
       setError(message);
       toast.error(message);
     } finally {
@@ -171,14 +259,25 @@ export function PostTaskForm() {
         </RawField>
       </div>
       <div className="flex flex-wrap items-center gap-3 border-t pt-5">
-        <Button type="submit" data-testid="post-demo-task" disabled={running}>
-          {running ? "Posting escrow on 0G..." : "Post escrow and run worker flow"}
+        <Button type="submit" data-testid="post-demo-task" disabled={running || confirming}>
+          {!authenticated
+            ? "Connect wallet to post"
+            : running
+              ? "Open wallet to confirm..."
+              : confirming
+                ? "Confirming escrow..."
+                : "Post escrow transaction"}
           <ArrowRight data-icon="inline-end" />
         </Button>
         <span className="text-xs uppercase tracking-[0.14em] text-muted-foreground">
-          Creates a buyer wallet, escrow, worker bid, storage roots, and proof receipt
+          Uses the connected wallet. Requires payout plus gas on 0G Galileo.
         </span>
       </div>
+      {txHash ? (
+        <div className="rounded-lg border border-accent/40 bg-accent/10 p-3 text-sm text-accent">
+          Transaction submitted: <span className="lz-mono break-all">{txHash}</span>
+        </div>
+      ) : null}
       {error ? (
         <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive">
           {error}

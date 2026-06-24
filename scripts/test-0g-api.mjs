@@ -3,6 +3,7 @@ import { readFrontendEnv } from "./env.mjs";
 const baseUrl = process.env.LEDGER_ZERO_BASE_URL ?? "http://localhost:3023";
 const env = readFrontendEnv(new URL("..", import.meta.url).pathname);
 const expectedSigner = env.ZEROG_PROJECT_TEST_WALLET_ADDRESS?.toLowerCase();
+const expectedComputeModel = env.ZEROG_COMPUTE_MODEL ?? "qwen2.5-omni";
 
 function assert(condition, message) {
   if (!condition) throw new Error(message);
@@ -23,7 +24,7 @@ assert(status.res.status === 200, `status route returned ${status.res.status}`);
 assert(status.body.signer?.address?.toLowerCase() === expectedSigner, "status signer is not the project test wallet");
 assert(status.body.storageConfigured === true, "storage is not configured");
 assert(status.body.computeConfigured === true, "compute is not configured");
-assert(status.body.computeModel === "0gm-1.0-35b-a3b", "unexpected compute model");
+assert(status.body.computeModel === expectedComputeModel, "unexpected compute model");
 assert(status.body.contracts?.length === 7, "expected seven configured contract slots");
 const coreContracts = status.body.contracts.filter((contract) => contract.name !== "LedgerMarketplace");
 assert(coreContracts.every((contract) => contract.configured && contract.deployed), "not all core contracts are deployed");
@@ -75,7 +76,7 @@ const computeBlocked = fundingBlocked(compute);
 if (!computeBlocked) {
   assert(compute.res.status === 200, `compute route returned ${compute.res.status}`);
   assert(typeof compute.body.content === "string" && compute.body.content.length > 10, "compute content missing");
-  assert(compute.body.proof?.model === "0gm-1.0-35b-a3b", "compute proof model mismatch");
+  assert(compute.body.proof?.model === expectedComputeModel, "compute proof model mismatch");
   assert(/^0x[a-fA-F0-9]{40}$/.test(compute.body.proof?.provider ?? ""), "compute provider missing");
 }
 

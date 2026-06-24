@@ -1,7 +1,7 @@
 {
   "kind": "LedgerZeroDemoFlowAttempt",
-  "runId": "run-mqr02xlc",
-  "createdAt": "2026-06-23T18:54:50.340Z",
-  "status": "succeeded",
-  "receiptRoot": "0x309cf61d300f6551deec958757eb9236628a4f53fcb416280cc176e8f61027cc"
+  "runId": "run-mqrxwuas",
+  "createdAt": "2026-06-24T10:38:17.189Z",
+  "status": "failed",
+  "error": "The previous full-demo server run was interrupted before it returned a receipt."
 }

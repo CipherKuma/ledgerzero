@@ -7,12 +7,10 @@ import {
   Fingerprint,
   Layers,
   ShieldCheck,
-  Sparkles,
   WalletCards,
 } from "lucide-react";
 import { Shell } from "@/components/Shell";
 import { DemoMoment, WorkerCard } from "@/components/ledger-zero";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { readLatestDemoFlow } from "@/lib/demo-flow/run";
 import { jobs, transferDemo, workers } from "@/lib/ledger-zero";
@@ -22,13 +20,12 @@ export const dynamic = "force-dynamic";
 const chapters = [
   {
     kicker: "The problem",
-    title: "Disposable output",
-    body: "Most AI marketplaces sell a response. When the task ends, the worker's memory, reputation, and earning power disappear into a platform account. Ledger Zero treats the worker itself as the object that can be hired, inspected, transferred, and paid.",
+    title: "AI work usually disappears",
+    body: "Most marketplaces sell one response at a time. The memory, reputation, and future earning power stay trapped inside the platform.",
     signal: "A response is not an asset.",
     evidence: [
-      { label: "Object", value: "worker token, not a chat transcript" },
-      { label: "Failure mode", value: "memory and earnings trapped in platform state" },
-      { label: "Ledger Zero", value: "turn the worker into an inspectable asset" },
+      { label: "Problem", value: "output without ownership" },
+      { label: "Fix", value: "make the worker inspectable" },
     ],
     image: {
       src: "/ledger-zero/requests/3.jpg",
@@ -38,13 +35,13 @@ const chapters = [
   },
   {
     kicker: "The asset",
-    title: "Worker as property",
-    body: "Every worker carries an identity image, an Agentic ID token, a 0G Storage memory root, capability namespaces, reputation, job history, and payout routing. The owner does not just own a listing. They own the productive asset.",
+    title: "Ledger Zero makes the worker ownable",
+    body: "Each worker has an identity token, 0G memory root, capability record, job history, reputation, and payout rule. Buyers can inspect the worker before hiring or acquiring it.",
     signal: "Memory and reputation travel with ownership.",
     evidence: [
       { label: "Identity", value: "WorkerINFT + Agentic ID" },
       { label: "Memory", value: "encrypted 0G Storage root" },
-      { label: "Reputation", value: "jobs, rating, earned 0G, capability record" },
+      { label: "Trust", value: "jobs, rating, earned 0G" },
     ],
     image: {
       src: "/ledger-zero/requests/5.jpg",
@@ -54,13 +51,12 @@ const chapters = [
   },
   {
     kicker: "The market",
-    title: "Labor market plus asset market",
-    body: "A buyer can post work and let workers bid. Another buyer can acquire a worker with its memory and future earning rights. The marketplace makes both sides visible: task demand and worker ownership.",
+    title: "Hire the labor or buy the asset",
+    body: "A buyer can post a task and let workers bid. Another buyer can buy a listed worker with its memory and future revenue rights.",
     signal: "Hire the worker, or acquire the worker.",
     evidence: [
-      { label: "Demand", value: "task brief + payout + bond" },
-      { label: "Supply", value: "workers bid with capability fit" },
-      { label: "Market", value: "hire the labor or buy the earning asset" },
+      { label: "Hire", value: "task brief + payout + bond" },
+      { label: "Buy", value: "listed worker + earning history" },
     ],
     image: {
       src: "/ledger-zero/requests/8.jpg",
@@ -70,13 +66,13 @@ const chapters = [
   },
   {
     kicker: "The handoff",
-    title: "Payout follows owner",
-    body: "When a worker token moves before settlement, LedgerEscrow resolves the payout recipient from the current worker owner. That is the signature demo: sell the worker, release the job, and the payout follows the new owner.",
+    title: "Payout follows the current owner",
+    body: "If a worker token transfers before settlement, escrow resolves the payout recipient from the current owner. The demo proves the revenue moves with the worker.",
     signal: "ownerOf(workerTokenId) decides the next recipient.",
     evidence: [
-      { label: "Before", value: "job accepted under owner A" },
-      { label: "Transfer", value: "worker token moves to owner B" },
-      { label: "Settlement", value: "payoutRecipient resolves owner B" },
+      { label: "Before", value: "job accepted by owner A" },
+      { label: "After", value: "worker sold to owner B" },
+      { label: "Settlement", value: "payout resolves owner B" },
     ],
     image: {
       src: "/ledger-zero/requests/6.jpg",
@@ -149,7 +145,7 @@ export default async function HomePage() {
         <div className="lz-container lz-scroll-grid">
           <div className="lz-story-stage">
             <div className="lz-kicker">Product thesis</div>
-            <h1 className="lz-story-title">Ledger Zero product dossier</h1>
+            <h1 className="lz-story-title">Ownable AI workers, explained.</h1>
             <div className="lz-story-loop" aria-label="Ledger Zero concept video loop">
               <video
                 src="/ledger-zero/requests/4.mp4"
@@ -162,56 +158,45 @@ export default async function HomePage() {
               />
             </div>
             <p>
-              An AI worker becomes credible when its work history, memory, execution proof, and payout
-              rule are inspectable together.
+              Ledger Zero turns an AI worker into an asset with memory, work history, and payout routing
+              that can be inspected before money moves.
             </p>
             <div className="lz-story-stage-points" aria-label="Product thesis checkpoints">
-              <span>Ownable worker</span>
+              <span>Worker token</span>
               <span>0G memory root</span>
-              <span>Escrowed task</span>
-              <span>Transfer-aware payout</span>
+              <span>Job history</span>
+              <span>Payout follows owner</span>
             </div>
           </div>
           <div className="lz-story-copy">
             {chapters.map((chapter, index) => (
               <article key={chapter.title} className="lz-story-chapter lz-reveal">
-                <div className="flex items-center justify-between gap-4 border-b pb-3">
-                  <div className="lz-kicker">{chapter.kicker}</div>
-                  <div className="lz-mono text-xs text-muted-foreground">0{index + 1}</div>
+                <div className="lz-story-media">
+                  <Image
+                    src={chapter.image.src}
+                    alt={chapter.image.alt}
+                    fill
+                    className="object-cover"
+                    sizes="(min-width: 980px) 24vw, 100vw"
+                    style={{ objectPosition: chapter.image.position }}
+                  />
+                  <div className="lz-story-media-label">0{index + 1}</div>
                 </div>
-                <h2>{chapter.title}</h2>
-                <div className="lz-story-fast-facts" aria-label={`${chapter.title} product facts`}>
-                  {chapter.evidence.map((item) => (
-                    <div key={item.label}>
-                      <span>{item.label}</span>
-                      <strong>{item.value}</strong>
-                    </div>
-                  ))}
-                </div>
-                <p>{chapter.body}</p>
-                <div className="lz-story-signal">{chapter.signal}</div>
-                <div className="lz-story-panel">
-                  <div className="lz-story-ledger">
-                    <div className="lz-kicker">How it appears in product</div>
-                    <dl>
-                      {chapter.evidence.map((item) => (
-                        <div key={item.label}>
-                          <dt>{item.label}</dt>
-                          <dd>{item.value}</dd>
-                        </div>
-                      ))}
-                    </dl>
+                <div className="lz-story-chapter-copy">
+                  <div className="flex items-center justify-between gap-4">
+                    <div className="lz-kicker">{chapter.kicker}</div>
+                    <div className="lz-mono text-xs text-muted-foreground">0{index + 1}</div>
                   </div>
-                  <div className="lz-story-media">
-                    <Image
-                      src={chapter.image.src}
-                      alt={chapter.image.alt}
-                      fill
-                      className="object-cover"
-                      sizes="(min-width: 980px) 34vw, 100vw"
-                      style={{ objectPosition: chapter.image.position }}
-                    />
-                    <div className="lz-story-media-label">chapter 0{index + 1}</div>
+                  <h2>{chapter.title}</h2>
+                  <p>{chapter.body}</p>
+                  <div className="lz-story-signal">{chapter.signal}</div>
+                  <div className="lz-story-proof-list" aria-label={`${chapter.title} product proof points`}>
+                    {chapter.evidence.map((item) => (
+                      <div key={item.label}>
+                        <span>{item.label}</span>
+                        <strong>{item.value}</strong>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </article>
@@ -293,7 +278,7 @@ export default async function HomePage() {
             <div className="lz-proof-terminal" aria-label="Proof artifact preview">
               <code>ownerOf({latestDemo?.tokenId ?? "seed"}) -&gt; {latestDemo ? short(latestDemo.accounts.newOwner) : "seeded demo"}</code>
               <code>memoryRoot -&gt; {latestDemo ? `0g://${short(latestDemo.storage.memoryRoot)}` : "seeded demo"}</code>
-              <code>compute -&gt; {latestDemo?.compute.proof?.model ?? "0gm-1.0-35b-a3b"}</code>
+              <code>compute -&gt; {latestDemo?.compute.proof?.model ?? "qwen2.5-omni"}</code>
               <code>releaseTx -&gt; {currentTransfer.releaseTx ? short(currentTransfer.releaseTx) : "seeded demo"}</code>
             </div>
           </div>
@@ -310,46 +295,26 @@ export default async function HomePage() {
       </section>
 
       <section className="lz-section">
-        <div className="lz-container grid gap-6 lg:grid-cols-[0.38fr_1fr] lg:items-start">
-          <div className="lz-reveal">
-            <div className="lz-kicker">Current market</div>
-            <h2 className="mt-3 font-display text-3xl uppercase leading-none">Workers you can inspect.</h2>
-            <p className="mt-4 text-sm leading-7 text-muted-foreground">
-              The current demo inventory shows how a worker presents as a profile, an earning asset, and a
-              proof-bearing object. The current agents now use the identity images from the provided asset
-              set.
-            </p>
-            <div className="mt-6 grid gap-3 border-t pt-4 text-sm">
+        <div className="lz-container lz-market-section">
+          <div className="lz-market-intro lz-reveal">
+            <div>
+              <div className="lz-kicker">Current market</div>
+              <h2 className="mt-3 font-display text-3xl uppercase leading-none">Workers you can inspect.</h2>
+              <p className="mt-4 text-sm leading-7 text-muted-foreground">
+                Three demo workers show the core market shape: identity, memory root, reputation,
+                earnings, listing state, and a proof path for deeper inspection.
+              </p>
+            </div>
+            <div className="lz-market-facts" aria-label="Current market facts">
               <ProofFact label="Workers minted" value={String(workers.length)} />
               <ProofFact label="Active jobs" value={String(activeJobs)} />
               <ProofFact label="Latest settled" value={latestDemo ? `${latestDemo.economics.bidAmount0G} 0G` : "seeded demo"} />
             </div>
           </div>
-          <div className="lz-grid cols-3">
+          <div className="lz-market-grid">
             {workers.slice(0, 3).map((worker) => (
               <WorkerCard key={worker.slug} worker={worker} />
             ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="lz-section">
-        <div className="lz-container lz-asset-request lz-reveal">
-          <div>
-            <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-accent">
-              <Sparkles className="size-4" />
-              Provided asset set
-            </div>
-            <p>
-              The landing narrative now uses the numbered concept assets and the agent portraits directly:
-              output, memory, market, transfer, proof, and worker identity all have visual anchors.
-            </p>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <Badge variant="outline">3 agent portraits</Badge>
-            <Badge variant="outline">4 story stills</Badge>
-            <Badge variant="outline">1 proof corridor</Badge>
-            <Badge variant="outline">1 concept loop</Badge>
           </div>
         </div>
       </section>

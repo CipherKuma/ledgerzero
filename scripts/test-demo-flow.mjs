@@ -1,5 +1,8 @@
+import { readFrontendEnv } from "./env.mjs";
+
 const baseUrl = process.env.LEDGER_ZERO_BASE_URL ?? "http://localhost:3023";
 const runCompute = process.env.LEDGER_ZERO_DEMO_COMPUTE !== "false";
+const expectedComputeModel = readFrontendEnv(new URL("..", import.meta.url).pathname).ZEROG_COMPUTE_MODEL ?? "qwen2.5-omni";
 
 function assert(condition, message) {
   if (!condition) throw new Error(message);
@@ -52,7 +55,7 @@ assert(
 );
 if (runCompute) {
   assert(body.compute.ran === true, "compute did not run");
-  assert(body.compute.proof?.model === "0gm-1.0-35b-a3b", "compute model mismatch");
+  assert(body.compute.proof?.model === expectedComputeModel, "compute model mismatch");
 }
 
 console.log(

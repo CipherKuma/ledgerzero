@@ -1,9 +1,6 @@
 import Image from "next/image";
-import Link from "next/link";
-import { ArrowRight } from "lucide-react";
 import { Shell } from "@/components/Shell";
-import { WorkerCard } from "@/components/ledger-zero";
-import { Button } from "@/components/ui/button";
+import { WorkerDirectorySurface } from "@/components/WorkerDirectorySurface";
 import { buildWorkerDirectory } from "@/lib/directory";
 import { readLatestDemoFlow } from "@/lib/demo-flow/run";
 
@@ -41,29 +38,19 @@ export default async function MarketplacePage() {
               <h1 className="mt-3 font-display text-3xl uppercase leading-none text-foreground">
                 Listed worker inventory
               </h1>
-              <p className="mt-4 max-w-2xl text-sm leading-7 text-muted-foreground">
-                Only active listings appear here. Sold, inactive, and unlisted registered workers stay in
-                the worker registry until a live marketplace listing exists.
-              </p>
+              <blockquote className="mt-4 max-w-2xl text-base leading-8 text-muted-foreground">
+                &ldquo;Ownership changes the meaning of labor. Here, every listed worker is a claim on future
+                execution, reputation, and revenue.&rdquo;
+              </blockquote>
             </div>
             <div className="grid w-full gap-3 sm:grid-cols-3">
               <MarketFact label="Listed workers" value={String(listedWorkers.length)} />
               <MarketFact label="Total earned" value={`${totalEarned.toFixed(2)} 0G`} />
               <MarketFact label="Listing source" value="receipt / registry" />
             </div>
-            <Link className="inline-flex" href="/post">
-              <Button variant="outline">
-                Post demand
-                <ArrowRight data-icon="inline-end" />
-              </Button>
-            </Link>
           </div>
 
-          <div className="lz-grid cols-3">
-            {listedWorkers.map((worker) => (
-              <WorkerCard key={worker.slug} worker={worker} />
-            ))}
-          </div>
+          <WorkerDirectorySurface workers={listedWorkers} kind="marketplace" />
 
           {latestDemo ? (
             <section
