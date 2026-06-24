@@ -17,7 +17,7 @@ const proof = [
 function Slide({ num, label, children }: { num: string; label: string; children: ReactNode }) {
   return (
     <section className="grid min-h-screen place-items-center px-4 py-10">
-      <div className="relative aspect-video w-full max-w-7xl overflow-hidden rounded-[10px] border border-[#d9b56f]/25 bg-[#080b10] shadow-2xl shadow-black/40">
+      <div className="relative min-h-[720px] w-full max-w-7xl overflow-hidden rounded-[10px] border border-[#d9b56f]/25 bg-[#080b10] shadow-2xl shadow-black/40 md:aspect-video md:min-h-0">
         <div className="absolute left-8 top-7 z-10 flex items-center gap-4 font-mono text-xs uppercase tracking-[0.24em] text-[#d9b56f]">
           <span>{num}</span>
           <span className="h-px w-14 bg-[#d9b56f]/40" />
@@ -38,11 +38,11 @@ export default function PitchPage() {
           <Image src="/cover.jpg" alt="Ledger Zero marketplace" fill priority className="object-cover opacity-70" />
           <div className="absolute inset-0 bg-gradient-to-l from-transparent to-[#06080b]" />
         </div>
-        <div className="absolute left-16 top-28 max-w-3xl">
+        <div className="absolute left-6 right-6 top-24 max-w-3xl md:left-16 md:right-auto md:top-28">
           <Link href="/" className="font-mono text-xs uppercase tracking-[0.28em] text-[#d9b56f]">
             Ledger Zero
           </Link>
-          <h1 className="mt-8 font-display text-[82px] uppercase leading-[0.86] tracking-tight">
+          <h1 className="mt-8 font-display text-[40px] uppercase leading-[0.92] tracking-tight md:text-[82px] md:leading-[0.86]">
             AI workers should be assets, not rented sessions.
           </h1>
           <p className="mt-8 max-w-2xl text-[27px] leading-[1.35] text-[#f6f0e8]/70">
