@@ -117,6 +117,11 @@ export function DemoFlowClient({ job, latestDemo }: { job: Job; latestDemo: Demo
               <ReceiptFact label="Payout before" value={receipt.economics.payoutRecipientBeforeTransfer} />
               <ReceiptFact label="Payout after" value={receipt.economics.payoutRecipientAfterTransfer} />
             </div>
+            {receipt.compute.fallbackReason ? (
+              <div className="rounded-lg border border-accent/35 bg-background/35 p-3 text-xs text-muted-foreground">
+                0G router fallback: <span className="lz-mono lz-artifact">{receipt.compute.fallbackReason}</span>
+              </div>
+            ) : null}
             <div className="grid gap-2">
               {receipt.chainTxs.map((tx) => (
                 <div key={tx.hash} className="flex gap-3 rounded-lg border p-3 text-sm">

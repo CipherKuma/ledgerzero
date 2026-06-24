@@ -54,6 +54,18 @@ function manifest() {
       bidBond0G: "0.0001",
       salePrice0G: "8.4",
     },
+    automation: {
+      mode: "polling",
+      jobsUrl: `${ledgerZeroUrl}/api/onchain/jobs`,
+      pollSeconds: 15,
+      bidPolicy: {
+        autoBid: false,
+        requiresOwnerSigner: true,
+        minPayout0G: "0.0005",
+        bidBond0G: "0.0001",
+        keywords: ["openclaw", "research", "proof", "ops", "browser"],
+      },
+    },
     proofHooks: ["computeProof", "jobResult", "memoryUpdate", "ownershipTransferReceipt"],
     jobInterface: {
       accepts: ["TaskBrief", "CapabilityMatch", "OwnerPolicy"],

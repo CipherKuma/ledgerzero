@@ -1,0 +1,52 @@
+{
+  "kind": "LedgerZeroAgentRegistration",
+  "type": "LedgerZeroAgentRegistration",
+  "createdAt": "2026-06-24T18:52:10.927Z",
+  "framework": "openclaw",
+  "agentName": "Atlas OpenClaw Worker",
+  "operatorAddress": "0x033A75272FDa5e157d9C69A6f5166eCCFe62dC0b",
+  "ownerAddress": "0x033A75272FDa5e157d9C69A6f5166eCCFe62dC0b",
+  "tokenId": "20",
+  "capabilities": [
+    "research.risk-memo",
+    "research.source-audit",
+    "ops.proof-packaging"
+  ],
+  "memoryRoot": "0xd7403c08fb7f96ce4dfba9a97155fb0fd4ff7296e2a30c5a5ed5732b0896d397",
+  "capabilityRoot": "0xf2c539e64f3706ce4c7a87d3b74e4656673624e5813a174b4e40a6903df9fd18",
+  "registrationRoot": "0x5241e6c49fd06cbb3d09e6aca5bc40713668ca5283e7b3e606882f4aa20f09f8",
+  "storageTxs": {
+    "memoryProfile": "0x6454eaebc815a486655ef3c598cc095ce671d9ca47f19767ad022bf9cf62df4a",
+    "capabilityManifest": "0xd9c157332e501eefd7261ae6c027e92bb63b36616930dc7ab6202b33c4cb8e64",
+    "registrationReceipt": "0x439a47477871fd4b21601b696e0033575a4050a3bae3a2ca182de32c408416c1"
+  },
+  "chainTxs": [
+    {
+      "label": "mint WorkerINFT",
+      "hash": "0xb1d4adc5d84372cdc12e63c1662c8d181bd8a297909d5825c0939e151a7d3c2f",
+      "block": 40526703
+    },
+    {
+      "label": "register capability",
+      "hash": "0xabbdea45655fdf3fc672ad653ca2036931392e8743087198519b9e3d7bf1275a",
+      "block": 40526723
+    },
+    {
+      "label": "register identity",
+      "hash": "0xace86e5b841fbb905722eec621231dc5df1746dc156d28c5e6ab23b2b5e09a2a",
+      "block": 40526752
+    }
+  ],
+  "contractAddresses": {
+    "workerINFT": "0x125942cb1E23E07DA5f80A5c05Bde3fF6e7322F9",
+    "capabilityRegistry": "0xF8197DE7E805D3b5C930C4784D266e23D4DA28F9",
+    "identityRegistry": "0x0F9Df2825DC195413D477aE08087d8FAd154dD34"
+  },
+  "payoutRule": "ownerOf(workerTokenId)",
+  "status": "live",
+  "proofNotes": [
+    "WorkerMemoryProfile and CapabilityManifest were uploaded to 0G Storage.",
+    "Memory mode is encrypted-owner-transferable; no plain-text transferable memory is claimed.",
+    "No real TEE claim is made."
+  ]
+}

@@ -21,8 +21,22 @@ function requireEnv(env, key) {
   return value;
 }
 
+function normalizeAddress(value, label) {
+  if (!value) return "";
+  try {
+    return ethers.getAddress(value);
+  } catch {
+    throw new Error(`${label} must be a valid EVM address: ${value}`);
+  }
+}
+
 function hasFlag(flag) {
   return process.argv.includes(flag);
+}
+
+function getArgValue(prefix) {
+  const arg = process.argv.find((value) => value.startsWith(prefix));
+  return arg ? arg.slice(prefix.length) : "";
 }
 
 function wait(ms) {
@@ -63,8 +77,8 @@ async function sent(label, txPromise) {
 }
 
 const repoRoot = new URL("..", import.meta.url).pathname;
-const frontendEnv = readEnvFile(new URL("../frontend/.env.local", import.meta.url));
-const agentEnv = readEnvFile(new URL("../.env.agent.local", import.meta.url));
+const frontendEnv = { ...readEnvFile(new URL("../frontend/.env.local", import.meta.url)), ...process.env };
+const agentEnv = { ...readEnvFile(new URL("../.env.agent.local", import.meta.url)), ...process.env };
 const execute = hasFlag("--execute");
 const rpc = requireEnv(frontendEnv, "ZEROG_RPC");
 const indexerUrl = frontendEnv.ZEROG_INDEXER ?? "https://indexer-storage-testnet-turbo.0g.ai";
@@ -79,20 +93,43 @@ if (wallet.address.toLowerCase() !== expectedAddress.toLowerCase()) {
 const agentName = requireEnv(agentEnv, "LEDGER_ZERO_AGENT_NAME");
 const framework = requireEnv(agentEnv, "LEDGER_ZERO_AGENT_FRAMEWORK");
 const description = requireEnv(agentEnv, "LEDGER_ZERO_AGENT_DESCRIPTION");
-const imagePath = requireEnv(agentEnv, "LEDGER_ZERO_AGENT_IMAGE_PATH");
+const imageUrl = requireEnv(agentEnv, "LEDGER_ZERO_AGENT_IMAGE_URL");
+if (!/^https?:\/\//i.test(imageUrl)) {
+  throw new Error("LEDGER_ZERO_AGENT_IMAGE_URL must be a publicly reachable http(s) URL");
+}
+const ownerAddressRaw = agentEnv.LEDGER_ZERO_AGENT_OWNER_ADDRESS ?? "";
+const ownerAddress = normalizeAddress(ownerAddressRaw, "LEDGER_ZERO_AGENT_OWNER_ADDRESS");
+const confirmOwnerRaw = getArgValue("--confirm-owner=");
+const confirmedOwnerAddress = normalizeAddress(confirmOwnerRaw, "--confirm-owner");
+const sameOwnerOperator = Boolean(ownerAddress && ownerAddress.toLowerCase() === wallet.address.toLowerCase());
 const skills = ["research.risk-memo", "research.source-audit", "ops.proof-packaging"];
 const createdAt = new Date().toISOString();
+const ledgerZeroAppUrl = (agentEnv.LEDGER_ZERO_APP_URL ?? "http://localhost:3023").replace(/\/$/, "");
+const automation = {
+  mode: "polling",
+  jobsUrl: `${ledgerZeroAppUrl}/api/onchain/jobs`,
+  pollSeconds: Number(agentEnv.LEDGER_ZERO_JOB_POLL_SECONDS ?? "15"),
+  bidPolicy: {
+    autoBid: agentEnv.LEDGER_ZERO_AUTO_BID === "true",
+    requiresOwnerSigner: true,
+    minPayout0G: "0.0005",
+    bidBond0G: "0.0001",
+    keywords: ["research", "proof", "source", "ops"],
+  },
+};
 const memoryProfile = {
   type: "WorkerMemoryProfile",
   createdAt,
   agentName,
   framework,
-  ownerAddress: wallet.address,
+  operatorAddress: wallet.address,
+  ownerAddress: ownerAddress || "OWNER_ADDRESS_REQUIRED_BEFORE_EXECUTE",
   mode: "encrypted-owner-transferable",
   storage: "0G Storage",
   encryption: "sealed-key envelope for current WorkerINFT owner",
   updatePolicy: "append encrypted job summaries and reseal memory on ownership transfer",
-  portableContext: "OpenClaw workspace memory and Ledger Zero receipts are bound to the WorkerINFT owner.",
+  portableContext:
+    "OpenClaw workspace memory and Ledger Zero receipts are bound to the WorkerINFT owner; agent operations are signed by the operator wallet.",
 };
 const capabilityManifest = {
   type: "CapabilityManifest",
@@ -100,7 +137,7 @@ const capabilityManifest = {
   framework,
   agentName,
   description,
-  imagePath,
+  imageUrl,
   capabilities: skills.map((id) => ({
     id,
     label: id
@@ -115,6 +152,7 @@ const capabilityManifest = {
     bidBond0G: "0.0001",
     salePrice0G: "8.4",
   },
+  automation,
   payoutRule: "ownerOf(workerTokenId)",
 };
 
@@ -149,8 +187,14 @@ if (!execute) {
         agentName,
         framework,
         wallet: wallet.address,
+        ownerAddress: ownerAddress || null,
+        sameOwnerOperator,
+        ownerConfirmationRequired: true,
+        executeRequirement:
+          "Set LEDGER_ZERO_AGENT_OWNER_ADDRESS and LEDGER_ZERO_AGENT_IMAGE_URL, then rerun with --execute --confirm-owner=<owner address>. Add --allow-same-owner-operator only if same-wallet setup is intentional.",
         balance0G: ethers.formatEther(balance),
         capabilities: skills,
+        automation,
         contracts: {
           workerINFT: await workerINFT.getAddress(),
           capabilityRegistry: await capability.getAddress(),
@@ -162,6 +206,20 @@ if (!execute) {
     ),
   );
   process.exit(0);
+}
+
+if (!ownerAddress) {
+  throw new Error("LEDGER_ZERO_AGENT_OWNER_ADDRESS is required before live registration");
+}
+
+if (confirmedOwnerAddress.toLowerCase() !== ownerAddress.toLowerCase()) {
+  throw new Error(`Owner confirmation required. Rerun with --confirm-owner=${ownerAddress}`);
+}
+
+if (sameOwnerOperator && !hasFlag("--allow-same-owner-operator")) {
+  throw new Error(
+    "Owner wallet and operator wallet are the same. This is allowed only with explicit acknowledgement; rerun with --allow-same-owner-operator if intentional.",
+  );
 }
 
 if (balance < ethers.parseEther("0.006")) {
@@ -182,9 +240,9 @@ txs.push(
   await sent(
     "mint WorkerINFT",
     workerINFT.mint(
-      wallet.address,
+      ownerAddress,
       agentName,
-      ethers.toUtf8Bytes(`sealed:${agentName}:${wallet.address}`),
+      ethers.toUtf8Bytes(`sealed:${agentName}:${ownerAddress}`),
       memoryCID,
       `ledger-zero:${framework}`,
     ),
@@ -205,7 +263,7 @@ const preliminaryReceipt = {
   framework,
   agentName,
   operatorAddress: wallet.address,
-  ownerAddress: wallet.address,
+  ownerAddress,
   tokenId,
   capabilities: skills,
   memoryRoot: memory.rootHash,
@@ -215,6 +273,13 @@ const preliminaryReceipt = {
     memoryProfile: memory.txHash,
     capabilityManifest: capabilityDoc.txHash,
     registrationReceipt: "",
+  },
+  automation: {
+    mode: automation.mode,
+    jobsUrl: automation.jobsUrl,
+    pollSeconds: automation.pollSeconds,
+    autoBid: automation.bidPolicy.autoBid,
+    requiresOwnerSigner: automation.bidPolicy.requiresOwnerSigner,
   },
   chainTxs: txs,
   payoutRule: "ownerOf(workerTokenId)",

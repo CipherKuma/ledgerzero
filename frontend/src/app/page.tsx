@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import {
@@ -12,8 +13,9 @@ import {
 import { Shell } from "@/components/Shell";
 import { DemoMoment, WorkerCard } from "@/components/ledger-zero";
 import { Button } from "@/components/ui/button";
-import { readLatestDemoFlow } from "@/lib/demo-flow/run";
-import { jobs, transferDemo, workers } from "@/lib/ledger-zero";
+import { Skeleton } from "@/components/ui/skeleton";
+import { buildWorkerDirectory } from "@/lib/directory";
+import { getOnChainJobs } from "@/lib/onchain-data";
 
 export const dynamic = "force-dynamic";
 
@@ -105,21 +107,7 @@ function short(value: string) {
   return `${value.slice(0, 6)}...${value.slice(-4)}`;
 }
 
-export default async function HomePage() {
-  const activeJobs = jobs.filter((job) => job.status !== "settled").length;
-  const latestDemo = await readLatestDemoFlow();
-  const currentTransfer = latestDemo
-    ? {
-        worker: transferDemo.worker,
-        taskId: latestDemo.taskId,
-        ownerBefore: latestDemo.accounts.operator,
-        ownerAfter: latestDemo.accounts.newOwner,
-        payoutRecipientBefore: short(latestDemo.economics.payoutRecipientBeforeTransfer),
-        payoutRecipientAfter: short(latestDemo.economics.payoutRecipientAfterTransfer),
-        releaseTx: latestDemo.chainTxs.find((tx) => tx.label === "release escrow payment")?.hash ?? "",
-      }
-    : transferDemo;
-
+export default function HomePage() {
   return (
     <Shell>
       <section className="lz-cinematic-entry" aria-label="Ledger Zero cinematic entry">
@@ -255,7 +243,9 @@ export default async function HomePage() {
 
       <section className="lz-section">
         <div className="lz-container lz-reveal">
-          <DemoMoment {...currentTransfer} />
+          <Suspense fallback={<Skeleton className="h-[420px] w-full rounded-xl" />}>
+            <HomeDemoMoment />
+          </Suspense>
         </div>
       </section>
 
@@ -276,10 +266,9 @@ export default async function HomePage() {
               </Button>
             </Link>
             <div className="lz-proof-terminal" aria-label="Proof artifact preview">
-              <code>ownerOf({latestDemo?.tokenId ?? "seed"}) -&gt; {latestDemo ? short(latestDemo.accounts.newOwner) : "seeded demo"}</code>
-              <code>memoryRoot -&gt; {latestDemo ? `0g://${short(latestDemo.storage.memoryRoot)}` : "seeded demo"}</code>
-              <code>compute -&gt; {latestDemo?.compute.proof?.model ?? "qwen2.5-omni"}</code>
-              <code>releaseTx -&gt; {currentTransfer.releaseTx ? short(currentTransfer.releaseTx) : "seeded demo"}</code>
+              <Suspense fallback={<ProofTerminalLoading />}>
+                <HomeProofTerminal />
+              </Suspense>
             </div>
           </div>
           <div className="lz-proof-media lz-reveal">
@@ -305,20 +294,119 @@ export default async function HomePage() {
                 earnings, listing state, and a proof path for deeper inspection.
               </p>
             </div>
-            <div className="lz-market-facts" aria-label="Current market facts">
-              <ProofFact label="Workers minted" value={String(workers.length)} />
-              <ProofFact label="Active jobs" value={String(activeJobs)} />
-              <ProofFact label="Latest settled" value={latestDemo ? `${latestDemo.economics.bidAmount0G} 0G` : "seeded demo"} />
-            </div>
+            <Suspense fallback={<MarketFactsLoading />}>
+              <HomeMarketFacts />
+            </Suspense>
           </div>
-          <div className="lz-market-grid">
-            {workers.slice(0, 3).map((worker) => (
-              <WorkerCard key={worker.slug} worker={worker} />
-            ))}
-          </div>
+          <Suspense fallback={<HomeMarketGridLoading />}>
+            <HomeMarketGrid />
+          </Suspense>
         </div>
       </section>
     </Shell>
+  );
+}
+
+async function HomeDemoMoment() {
+  const latestReleased = (await getOnChainJobs()).find((job) => job.releaseTx);
+  if (!latestReleased) return null;
+  return (
+    <DemoMoment
+      ownerBefore={latestReleased.workerAddress ?? "unknown"}
+      ownerAfter={latestReleased.workerAddress ?? "unknown"}
+      payoutRecipientBefore={latestReleased.acceptedWorker}
+      payoutRecipientAfter={latestReleased.acceptedWorker}
+      taskId={latestReleased.id}
+      releaseTx={latestReleased.releaseTx}
+    />
+  );
+}
+
+async function HomeProofTerminal() {
+  const [workers, jobs] = await Promise.all([buildWorkerDirectory(), getOnChainJobs()]);
+  const latestReleased = jobs.find((job) => job.releaseTx);
+  return (
+    <>
+      <code>ownerOf({workers[0]?.tokenId ?? "none"}) -&gt; {workers[0]?.ownerShort ?? "unavailable"}</code>
+      <code>memoryRoot -&gt; {workers[0]?.memoryRoot ?? "unavailable"}</code>
+      <code>jobCount -&gt; {String(jobs.length)}</code>
+      <code>releaseTx -&gt; {latestReleased?.releaseTx ? short(latestReleased.releaseTx) : "unavailable"}</code>
+    </>
+  );
+}
+
+async function HomeMarketFacts() {
+  const [workers, jobs] = await Promise.all([buildWorkerDirectory(), getOnChainJobs()]);
+  const activeJobs = jobs.filter((job) => !["released", "cancelled", "slashed"].includes(job.status)).length;
+  const latestReleased = jobs.find((job) => job.releaseTx);
+  return (
+    <div className="lz-market-facts" aria-label="Current market facts">
+      <ProofFact label="Workers minted" value={String(workers.length)} />
+      <ProofFact label="Active jobs" value={String(activeJobs)} />
+      <ProofFact label="Latest settled" value={latestReleased?.payout ?? "none"} />
+    </div>
+  );
+}
+
+async function HomeMarketGrid() {
+  const workers = await buildWorkerDirectory();
+  if (!workers.length) {
+    return (
+      <div className="rounded-xl border border-dashed bg-card/45 p-8 text-center">
+        <div className="font-display text-2xl uppercase text-foreground">No workers are indexed yet</div>
+        <p className="mx-auto mt-3 max-w-2xl text-sm leading-7 text-muted-foreground">
+          Once real WorkerINFT registrations are available on chain, the current market section will show
+          them here instead of staying blank.
+        </p>
+      </div>
+    );
+  }
+  return (
+    <div className="lz-market-grid">
+      {workers.slice(0, 3).map((worker) => (
+        <WorkerCard key={worker.slug} worker={worker} />
+      ))}
+    </div>
+  );
+}
+
+function ProofTerminalLoading() {
+  return (
+    <>
+      {Array.from({ length: 4 }).map((_, index) => (
+        <Skeleton key={index} className="h-5 w-full" />
+      ))}
+    </>
+  );
+}
+
+function MarketFactsLoading() {
+  return (
+    <div className="lz-market-facts" aria-label="Current market facts">
+      {Array.from({ length: 3 }).map((_, index) => (
+        <div key={index} className="flex items-center justify-between gap-4">
+          <Skeleton className="h-4 w-28" />
+          <Skeleton className="h-4 w-16" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function HomeMarketGridLoading() {
+  return (
+    <div className="lz-market-grid">
+      {Array.from({ length: 3 }).map((_, index) => (
+        <div key={index} className="overflow-hidden rounded-xl border bg-card/55">
+          <Skeleton className="aspect-[4/3] w-full" />
+          <div className="grid gap-3 p-4">
+            <Skeleton className="h-4 w-24" />
+            <Skeleton className="h-6 w-2/3" />
+            <Skeleton className="h-12 w-full" />
+          </div>
+        </div>
+      ))}
+    </div>
   );
 }
 

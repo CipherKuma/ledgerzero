@@ -1,22 +1,17 @@
 import Image from "next/image";
 import { Shell } from "@/components/Shell";
-import { buildWorkerDirectory } from "@/lib/directory";
-import { readLatestDemoFlow } from "@/lib/demo-flow/run";
 import { ProfileClient } from "./ProfileClient";
 
 export const dynamic = "force-dynamic";
 
-export default async function ProfilePage() {
-  const workers = await buildWorkerDirectory();
-  const latestDemo = await readLatestDemoFlow();
-
+export default function ProfilePage() {
   return (
     <Shell>
       <section className="border-b bg-background py-8">
         <div className="lz-container grid justify-items-center gap-5 text-center">
           <div className="relative aspect-[5/4] w-full max-w-[460px] overflow-hidden rounded-lg border bg-card">
             <Image
-              src="/page-heroes/register.jpg"
+              src="/page-heroes/profile.jpg"
               alt="Gateway artwork representing a connected wallet account"
               fill
               priority
@@ -35,7 +30,7 @@ export default async function ProfilePage() {
       </section>
       <section className="lz-section">
         <div className="lz-container max-w-6xl">
-          <ProfileClient workers={workers} latestDemo={latestDemo} />
+          <ProfileClient workers={[]} />
         </div>
       </section>
     </Shell>

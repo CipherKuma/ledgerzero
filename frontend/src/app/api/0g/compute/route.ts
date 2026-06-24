@@ -40,7 +40,7 @@ export async function POST(req: Request) {
     ]);
     return NextResponse.json(result);
   } catch (error) {
-    const integrationError = publicIntegrationError("0G Compute failed", error);
+    const integrationError = publicIntegrationError("Compute failed", error);
     return NextResponse.json(integrationError.body, { status: integrationError.status });
   }
 }

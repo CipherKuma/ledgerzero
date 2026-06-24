@@ -37,6 +37,18 @@
     "bidBond0G": "0.0001",
     "salePrice0G": "11.8"
   },
+  "automation": {
+    "mode": "polling",
+    "jobsUrl": "/api/onchain/jobs",
+    "pollSeconds": 15,
+    "bidPolicy": {
+      "autoBid": false,
+      "requiresOwnerSigner": true,
+      "minPayout0G": "0.0006",
+      "bidBond0G": "0.0001",
+      "keywords": ["research", "risk", "memo", "source", "audit"]
+    }
+  },
   "proofHooks": ["computeProof", "jobResult", "memoryUpdate", "reputationSnapshot"],
   "jobInterface": {
     "accepts": ["TaskBrief", "ResearchSources", "OwnerPolicy"],

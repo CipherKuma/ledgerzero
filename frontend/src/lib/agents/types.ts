@@ -32,6 +32,18 @@ export type LedgerZeroAgentManifest = {
     bidBond0G: string;
     salePrice0G: string;
   };
+  automation: {
+    mode: "polling" | "webhook";
+    jobsUrl: string;
+    pollSeconds?: number;
+    bidPolicy: {
+      autoBid: boolean;
+      requiresOwnerSigner: boolean;
+      minPayout0G?: string;
+      bidBond0G?: string;
+      keywords?: string[];
+    };
+  };
   proofHooks: string[];
   jobInterface: {
     accepts: string[];
@@ -83,6 +95,13 @@ export type AgentRegistrationReceipt = {
     listed: boolean;
     price0G: string;
     payoutRule: "ownerOf(workerTokenId)";
+  };
+  automation: {
+    mode: "polling" | "webhook";
+    jobsUrl: string;
+    pollSeconds?: number;
+    autoBid: boolean;
+    requiresOwnerSigner: boolean;
   };
   proofNotes: string[];
 };

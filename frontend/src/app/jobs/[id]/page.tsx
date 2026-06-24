@@ -1,11 +1,11 @@
 import { Shell } from "@/components/Shell";
 import { DemoMoment, JobCard, PageHeader } from "@/components/ledger-zero";
-import { readLatestDemoFlow } from "@/lib/demo-flow/run";
-import { getJob, transferDemo } from "@/lib/ledger-zero";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { DemoFlowClient } from "./DemoFlowClient";
+import { JobLifecycleActions } from "./JobLifecycleActions";
+import { getOnChainJob } from "@/lib/onchain-data";
 
 const lifecycle = [
   "posted",
@@ -19,22 +19,23 @@ const lifecycle = [
 
 export default async function JobPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const job = getJob(id);
-  const latestDemo = await readLatestDemoFlow();
-  const displayJob = latestDemo
-    ? {
-        ...job,
-        title: latestDemo.task.title,
-        category: latestDemo.task.category,
-        payout: `${latestDemo.economics.taskPayment0G} 0G`,
-        bond: `${latestDemo.economics.bondAmount0G} 0G`,
-        minReputation: "demo configured",
-        status: "settled",
-        acceptedWorker: latestDemo.agentName,
-        resultRoot: `0g://${latestDemo.storage.jobResultRoot}`,
-        bids: [{ worker: latestDemo.agentName, amount: `${latestDemo.economics.bidAmount0G} 0G`, score: "live" }],
-      }
-    : job;
+  const displayJob = await getOnChainJob(id);
+  if (!displayJob) {
+    return (
+      <Shell>
+        <section className="lz-section">
+          <div className="lz-container">
+            <div className="rounded-xl border border-dashed bg-card/40 p-8 text-center">
+              <div className="font-display text-2xl uppercase">Job not found on chain</div>
+              <p className="mt-3 text-sm leading-7 text-muted-foreground">
+                This page now renders only escrow tasks that can be resolved from Galileo state.
+              </p>
+            </div>
+          </div>
+        </section>
+      </Shell>
+    );
+  }
 
   return (
     <Shell>
@@ -46,8 +47,8 @@ export default async function JobPage({ params }: { params: Promise<{ id: string
           alt: "CRT worker queue artwork representing the 0G task lifecycle",
         }}
       >
-        Bids, accepted worker, compute state, result root, release payment action, and transfer impact
-        are shown together so the buyer can make the settlement decision.
+        This room is sourced from on-chain escrow data only. If title, category, or bid history were never
+        committed to chain, the UI stays sparse rather than inventing it.
       </PageHeader>
       <section className="lz-section">
         <div className="lz-container lz-grid">
@@ -71,8 +72,16 @@ export default async function JobPage({ params }: { params: Promise<{ id: string
               </div>
             </CardContent>
           </Card>
-          <DemoFlowClient job={displayJob} latestDemo={latestDemo} />
-          <DemoMoment {...transferDemo} />
+          <JobLifecycleActions job={displayJob} />
+          <DemoFlowClient job={displayJob} latestDemo={null} />
+          <DemoMoment
+            ownerBefore={displayJob.workerAddress ?? "unassigned"}
+            ownerAfter={displayJob.workerAddress ?? "unassigned"}
+            taskId={displayJob.id}
+            payoutRecipientBefore={displayJob.acceptedWorker}
+            payoutRecipientAfter={displayJob.acceptedWorker}
+            releaseTx={displayJob.releaseTx}
+          />
         </div>
       </section>
     </Shell>

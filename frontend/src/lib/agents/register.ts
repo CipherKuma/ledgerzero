@@ -70,6 +70,7 @@ function capabilityManifest(manifest: LedgerZeroAgentManifest, agentName: string
     proofHooks: manifest.proofHooks,
     jobInterface: manifest.jobInterface,
     pricing: manifest.pricing,
+    automation: manifest.automation,
   };
 }
 
@@ -203,8 +204,16 @@ export async function registerInspectedAgent({
       price0G: manifest.pricing.salePrice0G,
       payoutRule: "ownerOf(workerTokenId)",
     },
+    automation: {
+      mode: manifest.automation.mode,
+      jobsUrl: manifest.automation.jobsUrl,
+      pollSeconds: manifest.automation.pollSeconds,
+      autoBid: manifest.automation.bidPolicy.autoBid,
+      requiresOwnerSigner: manifest.automation.bidPolicy.requiresOwnerSigner,
+    },
     proofNotes: [
       "Manifest and encrypted-memory profile were uploaded to 0G Storage.",
+      "Registered workers must run their declared listener to discover and bid on posted jobs.",
       "Worker revenue resolves through ownerOf(workerTokenId), not a platform account.",
       "MockTEEOracle remains a demo verifier and is not represented as real TEE.",
     ],

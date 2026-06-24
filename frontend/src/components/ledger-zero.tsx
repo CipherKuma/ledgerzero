@@ -19,12 +19,23 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { RelativeTime } from "@/components/RelativeTime";
 import type { Job, ProofArtifact, StatusKind, Worker } from "@/lib/ledger-zero";
 
 export function StatusBadge({ status }: { status: StatusKind }) {
   const variant =
     status === "live" ? "default" : status === "blocked" ? "destructive" : "secondary";
   return <Badge variant={variant}>{status}</Badge>;
+}
+
+function isWorkerProperlyRegistered(worker: Worker) {
+  return (
+    worker.memoryStatus !== "blocked" &&
+    worker.capabilities.length > 0 &&
+    Boolean(worker.owner) &&
+    Boolean(worker.tokenId) &&
+    !worker.memoryRoot.toLowerCase().includes("unavailable")
+  );
 }
 
 export function PageHeader({
@@ -107,17 +118,28 @@ export function MetricStrip({
   );
 }
 
-export function WorkerCard({ worker }: { worker: Worker }) {
+export function WorkerCard({
+  worker,
+  timeMode = "joined",
+}: {
+  worker: Worker;
+  timeMode?: "joined" | "listed";
+}) {
   const listingStatus = worker.listingStatus ?? (worker.listed ? "listed" : "not-listed");
-  const listingSource = worker.listingSource ?? (worker.listed ? "seeded-demo" : "none");
+  const listingSource = worker.listingSource ?? (worker.listed ? "on-chain" : "none");
+  const timeValue = timeMode === "listed" ? (worker.listedAt ?? worker.registeredAt) : worker.registeredAt;
+  const properlyRegistered = isWorkerProperlyRegistered(worker);
   return (
-    <Card className="group/card h-full overflow-hidden">
+    <Card
+      className={`group/card h-full overflow-hidden transition ${properlyRegistered ? "" : "opacity-55 grayscale-[0.45]"}`}
+      aria-disabled={!properlyRegistered}
+    >
       <div className="relative aspect-[4/3] border-b border-border bg-card">
         <Image
           src={worker.image.src}
           alt={worker.image.alt}
           fill
-          className="object-cover transition duration-500 group-hover/card:scale-[1.03]"
+          className={`object-cover transition duration-500 ${properlyRegistered ? "group-hover/card:scale-[1.03]" : ""}`}
           sizes="(min-width: 900px) 31vw, (min-width: 640px) 48vw, 100vw"
         />
         <div className="absolute inset-0 bg-[linear-gradient(180deg,transparent_54%,color-mix(in_srgb,var(--background)_72%,transparent))]" />
@@ -126,14 +148,31 @@ export function WorkerCard({ worker }: { worker: Worker }) {
         </div>
       </div>
       <CardHeader>
-        <CardDescription>Agentic ID / token #{worker.tokenId}</CardDescription>
+        <CardDescription className="flex flex-wrap items-center gap-2">
+          <span>Agentic ID / token #{worker.tokenId}</span>
+          {timeValue ? (
+            <span className="text-accent">
+              <RelativeTime value={timeValue} verb={timeMode} />
+            </span>
+          ) : null}
+        </CardDescription>
         <CardTitle>{worker.name}</CardTitle>
         <CardAction>
-          <StatusBadge status={worker.memoryStatus} />
+          {properlyRegistered ? (
+            <StatusBadge status={worker.memoryStatus} />
+          ) : (
+            <Badge variant="destructive">registration incomplete</Badge>
+          )}
         </CardAction>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
         <p className="text-sm text-muted-foreground">{worker.summary}</p>
+        {!properlyRegistered ? (
+          <div className="rounded-lg border border-dashed bg-background/45 p-3 text-sm text-muted-foreground">
+            This worker is indexed on-chain, but its live memory, identity, or capability record is incomplete. It is
+            disabled until registration is complete.
+          </div>
+        ) : null}
         <div className="flex flex-wrap gap-2">
           {worker.capabilities.map((capability) => (
             <Badge key={capability} variant="outline">
@@ -147,32 +186,40 @@ export function WorkerCard({ worker }: { worker: Worker }) {
           <Stat label="Jobs" value={String(worker.jobsCompleted)} />
           <Stat label="Earned" value={`${worker.earned} 0G`} />
           <Stat label="Memory root" value={worker.memoryRoot} mono wide />
+          {timeValue ? (
+            <Stat
+              label={timeMode === "listed" ? "Listed" : "Joined"}
+              value={timeMode === "listed" ? "on-chain listing" : "worker registry"}
+              wide
+            />
+          ) : null}
           <Stat label="Listing" value={`${listingStatus} / ${listingSource}`} wide />
           <Stat label="List price" value={worker.price} wide />
         </dl>
         <div className="flex flex-wrap gap-2 pt-1">
-          <Link className="inline-flex" href={`/agent/${worker.slug}`}>
-            <Button>
-              View
-              <ArrowRight data-icon="inline-end" />
-            </Button>
-          </Link>
-          {listingStatus === "listed" ? (
-            <Link className="inline-flex" href="/marketplace#latest-sale">
-              <Button variant="secondary">Open listing proof</Button>
-            </Link>
-          ) : listingStatus === "sold" ? (
-            <Link className="inline-flex" href="/proof">
-              <Button variant="outline">Open sale receipt</Button>
-            </Link>
+          {properlyRegistered ? (
+            <>
+              <Link className="inline-flex" href={`/agent/${worker.slug}`}>
+                <Button>
+                  View
+                  <ArrowRight data-icon="inline-end" />
+                </Button>
+              </Link>
+              {listingStatus === "listed" ? (
+                <Link className="inline-flex" href="/proof">
+                  <Button variant="secondary">Open listing proof</Button>
+                </Link>
+              ) : listingStatus === "sold" ? (
+                <Link className="inline-flex" href="/proof">
+                  <Button variant="outline">Open sale receipt</Button>
+                </Link>
+              ) : null}
+            </>
           ) : (
-            <Link className="inline-flex" href="/register">
-              <Button variant="outline">Register worker</Button>
-            </Link>
+            <Button type="button" variant="outline" disabled>
+              Registration incomplete
+            </Button>
           )}
-          <Link className="inline-flex" href="/jobs/task-risk-brief">
-            <Button variant="outline">Open task flow</Button>
-          </Link>
         </div>
       </CardContent>
     </Card>
@@ -359,7 +406,7 @@ export function DemoMoment({
           </div>
           <div>
             <span>Settlement</span>
-            <strong>{releaseTx ? releaseTx : "seeded demo"}</strong>
+            <strong>{releaseTx ? releaseTx : "unavailable"}</strong>
           </div>
           <div>
             <span>Rule</span>

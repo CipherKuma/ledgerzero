@@ -361,7 +361,7 @@ export async function runLedgerZeroDemoFlow({
   const preliminaryReceipt = {
     kind: "LedgerZeroFullDemoFlow",
     createdAt: new Date().toISOString(),
-    status: runCompute ? "live" : "compute-fallback",
+    status: runCompute && compute.proof?.source !== "sarvam-fallback" ? "live" : "compute-fallback",
     framework: manifest.framework,
     agentName,
     tokenId: tokenId.toString(),
@@ -403,6 +403,8 @@ export async function runLedgerZeroDemoFlow({
       ran: runCompute,
       content: compute.content,
       proof: compute.proof,
+      fallbackReason:
+        compute.proof && "fallbackReason" in compute.proof ? compute.proof.fallbackReason : undefined,
     },
     chainTxs,
     contractAddresses: {

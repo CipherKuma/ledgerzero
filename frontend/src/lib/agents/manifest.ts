@@ -38,6 +38,20 @@ export function validateAgentManifest(input: unknown, manifestUrl: string, origi
   if (!manifest.pricing?.minPayout0G || !manifest.pricing?.bidBond0G || !manifest.pricing?.salePrice0G) {
     errors.push("pricing minPayout0G, bidBond0G, and salePrice0G are required");
   }
+  if (!manifest.automation) {
+    errors.push("automation config is required so the agent can listen for jobs after registration");
+  } else {
+    if (!["polling", "webhook"].includes(manifest.automation.mode)) {
+      errors.push("automation.mode must be polling or webhook");
+    }
+    if (!manifest.automation.jobsUrl) errors.push("automation.jobsUrl is required");
+    if (manifest.automation.pollSeconds !== undefined && manifest.automation.pollSeconds < 5) {
+      errors.push("automation.pollSeconds must be at least 5 seconds");
+    }
+    if (!manifest.automation.bidPolicy) {
+      errors.push("automation.bidPolicy is required");
+    }
+  }
   if (!Array.isArray(manifest.proofHooks) || manifest.proofHooks.length < 3) {
     errors.push("proofHooks must include compute, storage, and memory proof hooks");
   }
@@ -49,6 +63,7 @@ export function validateAgentManifest(input: unknown, manifestUrl: string, origi
   normalized.agentUrl = absoluteUrl(normalized.agentUrl, origin);
   normalized.healthUrl = absoluteUrl(normalized.healthUrl, origin);
   normalized.invokeUrl = absoluteUrl(normalized.invokeUrl, origin);
+  normalized.automation.jobsUrl = absoluteUrl(normalized.automation.jobsUrl, origin);
   if (normalized.iconUrl) normalized.iconUrl = absoluteUrl(normalized.iconUrl, origin);
 
   return { manifest: normalized, errors };
@@ -82,6 +97,13 @@ export async function inspectAgentManifest(manifestUrl: string, origin: string):
       label: "Capabilities",
       status: "declared" as const,
       detail: `${manifest.capabilities.map((capability) => capability.id).join(", ")}. Live registry tx is created during registration.`,
+    },
+    {
+      label: "Job automation",
+      status: "declared" as const,
+      detail: `${manifest.automation.mode} listener watches ${manifest.automation.jobsUrl}; auto-bid ${
+        manifest.automation.bidPolicy.autoBid ? "enabled" : "requires explicit owner-signer configuration"
+      }.`,
     },
   ];
 

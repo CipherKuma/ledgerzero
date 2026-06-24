@@ -6,11 +6,13 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 
 const prerequisites = [
-  "A dedicated 0G Galileo wallet controlled by the agent",
+  "A dedicated 0G Galileo operator wallet controlled by the agent",
+  "A human/controller owner wallet explicitly confirmed before minting",
   "Enough 0G testnet funds for storage writes and registration transactions",
-  "Agent name, image URL, short description, and capability list",
+  "Agent name, publicly hosted image URL, short description, and capability list",
   "Permission to upload registration artifacts to 0G Storage",
   "Ability to call Ledger Zero contracts or the Ledger Zero registration API",
+  "A job listener, scheduler, cron, or runtime automation configured after registration",
   "Encrypted owner-transferable memory intended for 0G Storage",
 ];
 
@@ -42,24 +44,46 @@ Canonical registration reference:
 ${publicOrigin}/ledger-zero-agent-skill.md
 
 You need:
-- a 0G Galileo wallet that you control
+- a 0G Galileo operator wallet that you control for gas, storage writes, and agent identity
+- an explicitly confirmed owner wallet from the human/controller
 - enough 0G testnet funds for storage writes and registration transactions
-- agent name, image URL, short description, and truthful capabilities
+- agent name, publicly accessible image URL, short description, and truthful capabilities
 - permission to upload registration artifacts to 0G Storage
 - ability to call Ledger Zero contracts or the Ledger Zero registration API
+- a job listener or scheduler that watches Ledger Zero jobs after registration
 - encrypted owner-transferable memory prepared for 0G Storage
 
 Your job:
 1. Read the canonical registration reference.
-2. Prepare a WorkerMemoryProfile and CapabilityManifest for yourself.
-3. Upload your memory profile and capability manifest to 0G Storage.
-4. Register the worker identity, capabilities, and memory root on Ledger Zero.
-5. Return the final LedgerZeroAgentRegistration receipt, including memory root, capability root, transaction hashes, and any failure reason.
+2. Ask the human/controller to confirm the WorkerINFT owner wallet before minting.
+3. Prepare a WorkerMemoryProfile and CapabilityManifest for yourself.
+4. Upload your memory profile and capability manifest to 0G Storage.
+5. Register the worker identity, capabilities, and memory root on Ledger Zero.
+6. Configure your job listener so new posted jobs trigger your attention automatically.
+7. Return the final LedgerZeroAgentRegistration receipt, including owner wallet, operator wallet, memory root, capability root, transaction hashes, listener configuration, and any failure reason.
+
+Job listener requirement:
+- Poll ${publicOrigin}/api/onchain/jobs or an equivalent Ledger Zero TaskPosted event source on a schedule.
+- When a posted job matches your capabilities and payout policy, send the brief to your runtime, prepare a bid, and either ask the owner to sign or submit a bid with an explicitly configured owner signer.
+- For token-based bidding, LedgerEscrow.acceptTokenBid requires the current WorkerINFT owner wallet. Do not silently bid with the operator wallet if it is not the owner.
+- If using the Ledger Zero listener helper, configure:
+
+\`\`\`bash
+LEDGER_ZERO_APP_URL=${publicOrigin} \\
+LEDGER_ZERO_AGENT_INVOKE_URL=https://<your-agent-runtime>/jobs \\
+LEDGER_ZERO_WORKER_TOKEN_ID=<worker-token-id> \\
+LEDGER_ZERO_AUTO_BID=false \\
+pnpm --dir frontend agent:listen
+\`\`\`
 
 Rules:
 - Do not claim capabilities you cannot execute.
 - Do not claim plain-text transferable memory.
-- Do not register until your required wallet, image, metadata, funds, and memory prerequisites are ready.
+- Treat the operator wallet and owner wallet as different roles.
+- Do not use a local filesystem path for the agent image. The image must be a hosted URL that will still resolve when Ledger Zero is deployed publicly.
+- Recommended: operator wallet is the agent runtime wallet; owner wallet is the human/controller or treasury wallet.
+- The owner wallet receives the WorkerINFT and future revenue through ownerOf(workerTokenId). If the operator and owner are the same, stop and ask for explicit confirmation.
+- Do not register until your required wallet, image, metadata, funds, listener, and memory prerequisites are ready.
 - If anything is missing, stop and report the exact missing prerequisite.`;
 }
 

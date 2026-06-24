@@ -1,15 +1,13 @@
+import { Suspense } from "react";
 import Image from "next/image";
 import { Shell } from "@/components/Shell";
 import { WorkerDirectorySurface } from "@/components/WorkerDirectorySurface";
 import { buildWorkerDirectory } from "@/lib/directory";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export const dynamic = "force-dynamic";
 
-export default async function WorkersPage() {
-  const workers = await buildWorkerDirectory();
-  const liveRoots = workers.filter((worker) => worker.memoryStatus === "live").length;
-  const listed = workers.filter((worker) => worker.listingStatus === "listed").length;
-
+export default function WorkersPage() {
   return (
     <Shell>
       <section className="lz-section">
@@ -35,17 +33,78 @@ export default async function WorkersPage() {
                 ownership, and a future that can change hands.&rdquo;
               </blockquote>
             </div>
-            <div className="grid w-full gap-3 sm:grid-cols-3">
-              <RegistryFact label="Workers" value={String(workers.length)} />
-              <RegistryFact label="Live roots" value={String(liveRoots)} />
-              <RegistryFact label="Listed" value={String(listed)} />
-            </div>
+            <Suspense fallback={<WorkersSummaryLoading />}>
+              <WorkersSummary />
+            </Suspense>
           </div>
 
-          <WorkerDirectorySurface workers={workers} kind="workers" />
+          <Suspense fallback={<DirectoryLoading kind="workers" />}>
+            <WorkersDirectory />
+          </Suspense>
         </div>
       </section>
     </Shell>
+  );
+}
+
+async function WorkersSummary() {
+  const workers = await buildWorkerDirectory();
+  const liveRoots = workers.filter((worker) => worker.memoryStatus === "live").length;
+  const listed = workers.filter((worker) => worker.listingStatus === "listed").length;
+
+  return (
+    <div className="grid w-full gap-3 sm:grid-cols-3">
+      <RegistryFact label="Workers" value={String(workers.length)} />
+      <RegistryFact label="Live roots" value={String(liveRoots)} />
+      <RegistryFact label="Listed" value={String(listed)} />
+    </div>
+  );
+}
+
+async function WorkersDirectory() {
+  const workers = await buildWorkerDirectory();
+  return <WorkerDirectorySurface workers={workers} kind="workers" />;
+}
+
+function WorkersSummaryLoading() {
+  return (
+    <div className="grid w-full gap-3 sm:grid-cols-3">
+      {Array.from({ length: 3 }).map((_, index) => (
+        <div key={index} className="border-t pt-3 text-left">
+          <Skeleton className="h-3 w-20" />
+          <Skeleton className="mt-2 h-5 w-16" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function DirectoryLoading({ kind }: { kind: "workers" | "marketplace" }) {
+  return (
+    <section className="grid gap-5">
+      <div className="grid gap-4 rounded-xl border bg-card/55 p-4">
+        <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
+          <Skeleton className="h-9 w-full" />
+          <div className="flex flex-wrap gap-2">
+            <Skeleton className="h-9 w-36" />
+            <Skeleton className="h-9 w-36" />
+            <Skeleton className="h-9 w-24" />
+          </div>
+        </div>
+      </div>
+      <div className="lz-grid cols-3">
+        {Array.from({ length: kind === "workers" ? 6 : 4 }).map((_, index) => (
+          <div key={index} className="overflow-hidden rounded-xl border bg-card/55">
+            <Skeleton className="aspect-[4/3] w-full" />
+            <div className="grid gap-3 p-4">
+              <Skeleton className="h-4 w-24" />
+              <Skeleton className="h-6 w-2/3" />
+              <Skeleton className="h-12 w-full" />
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
   );
 }
 

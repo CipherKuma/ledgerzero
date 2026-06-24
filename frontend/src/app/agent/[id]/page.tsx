@@ -1,10 +1,11 @@
 import { Shell } from "@/components/Shell";
 import { ArtifactCallout, PageHeader, StatusBadge } from "@/components/ledger-zero";
-import { getWorker, proofArtifacts } from "@/lib/ledger-zero";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { getOnChainWorker } from "@/lib/onchain-data";
+import type { ProofArtifact } from "@/lib/ledger-zero";
 
 export default async function WorkerPage({
   params,
@@ -12,10 +13,53 @@ export default async function WorkerPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const worker = getWorker(id);
-  const proofRows = proofArtifacts.filter((artifact) =>
-    ["0G Chain", "0G Storage", "Transfer receipt", "ERC8004"].includes(artifact.layer),
-  );
+  const worker = await getOnChainWorker(id);
+  if (!worker) {
+    return (
+      <Shell>
+        <section className="lz-section">
+          <div className="lz-container">
+            <div className="rounded-xl border border-dashed bg-card/40 p-8 text-center">
+              <div className="font-display text-2xl uppercase">Worker not found on chain</div>
+              <p className="mt-3 text-sm leading-7 text-muted-foreground">
+                This route only renders workers that can be resolved from Galileo contract state and logs.
+              </p>
+            </div>
+          </div>
+        </section>
+      </Shell>
+    );
+  }
+  const proofRows: ProofArtifact[] = [
+    {
+      layer: "0G Chain",
+      artifact: "Worker ownership",
+      value: worker.owner,
+      status: "live" as const,
+      note: "Resolved directly from WorkerINFT.ownerOf(tokenId).",
+    },
+    {
+      layer: "0G Storage",
+      artifact: "Worker memory pointer",
+      value: worker.memoryRoot,
+      status: worker.memoryStatus,
+      note: "Resolved from WorkerINFT metadata.",
+    },
+    {
+      layer: "Marketplace",
+      artifact: "Listing state",
+      value: worker.listingStatus ?? "not-listed",
+      status: worker.listingStatus === "listed" || worker.listingStatus === "sold" ? "live" : "fallback",
+      note: "Derived from LedgerMarketplace state and events.",
+    },
+    {
+      layer: "ERC8004",
+      artifact: "Reputation score",
+      value: `${worker.rating.toFixed(2)} / 5`,
+      status: "live" as const,
+      note: "Derived from ERC8004 reputation values for the current owner.",
+    },
+  ];
 
   return (
     <Shell>
@@ -64,11 +108,11 @@ export default async function WorkerPage({
                     <div className="grid gap-4 rounded-xl border bg-background/40 p-4">
                       <div className="font-display text-xl uppercase text-foreground">Capabilities</div>
                       <div className="flex flex-wrap gap-2">
-                        {worker.capabilities.map((capability) => (
+                        {worker.capabilities.length ? worker.capabilities.map((capability) => (
                           <Badge key={capability} variant="outline">
                             {capability}
                           </Badge>
-                        ))}
+                        )) : <Badge variant="secondary">No capability tags on-chain</Badge>}
                       </div>
                     </div>
                   </div>
@@ -91,7 +135,7 @@ export default async function WorkerPage({
                       <CardTitle>Recent work history</CardTitle>
                     </CardHeader>
                     <CardContent className="grid gap-3">
-                      {worker.history.map((job) => (
+                      {worker.history.length ? worker.history.map((job) => (
                         <div key={job.id} className="rounded-xl border bg-background/35 p-4">
                           <div className="flex flex-wrap items-start justify-between gap-3">
                             <div className="grid gap-1">
@@ -111,7 +155,11 @@ export default async function WorkerPage({
                           </div>
                           <div className="lz-mono lz-artifact mt-1 text-sm text-foreground">{job.proof}</div>
                         </div>
-                      ))}
+                      )) : (
+                        <div className="rounded-xl border border-dashed bg-background/35 p-4 text-sm text-muted-foreground">
+                          No completed task history is indexed on-chain for this worker yet.
+                        </div>
+                      )}
                     </CardContent>
                   </Card>
 
@@ -124,17 +172,17 @@ export default async function WorkerPage({
                         {worker.rating.toFixed(2)}
                       </div>
                       <p className="leading-7 text-muted-foreground">
-                        ERC8004 reputation is live on Galileo. The current score reflects successful work,
-                        clean releases, and the latest ownership-aware payout flow.
+                        ERC8004 reputation is read directly from Galileo. No synthetic score or seeded success
+                        narrative is added on top.
                       </p>
                       <div className="rounded-xl border bg-background/35 p-4">
                         <div className="text-xs uppercase tracking-[0.14em] text-muted-foreground">
                           Why this score exists
                         </div>
                         <ul className="mt-3 grid gap-2 text-sm text-muted-foreground">
-                          <li>Released escrow receipts recorded against the worker token</li>
-                          <li>Stored memory and result bundles preserved after delivery</li>
-                          <li>Ownership transfer keeps future payout routing honest</li>
+                          <li>Successful jobs counted by ERC8004 for the current owner</li>
+                          <li>Memory pointer carried in WorkerINFT metadata</li>
+                          <li>Marketplace state resolved from contract storage and events</li>
                         </ul>
                       </div>
                     </CardContent>
@@ -186,6 +234,11 @@ export default async function WorkerPage({
                       ))}
                     </TableBody>
                   </Table>
+                  {!worker.history.length ? (
+                    <div className="rounded-xl border border-dashed bg-background/35 p-4 text-sm text-muted-foreground">
+                      No indexed completed jobs for this worker token yet.
+                    </div>
+                  ) : null}
                 </CardContent>
               </Card>
             </TabsContent>

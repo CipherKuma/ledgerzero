@@ -51,6 +51,7 @@ export type DemoFlowReceipt = {
     ran: boolean;
     content: string;
     proof: ComputeProof | null;
+    fallbackReason?: string;
   };
   chainTxs: Array<{
     label: string;

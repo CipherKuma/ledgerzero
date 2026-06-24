@@ -2,14 +2,15 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import { ArrowRight, X } from "lucide-react";
+import { ArrowRight, CalendarIcon } from "lucide-react";
 import { toast } from "sonner";
 import { usePrivy, useWallets } from "@privy-io/react-auth";
 import { useBalance, useChainId, useSwitchChain, useWaitForTransactionReceipt, useWriteContract } from "wagmi";
 import { formatUnits, keccak256, parseEther, toBytes, type Hex } from "viem";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
 import { Input } from "@/components/ui/input";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
   Select,
   SelectContent,
@@ -20,24 +21,21 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { galileo } from "@/lib/chains";
 import { contractAddresses } from "@/lib/contracts";
-
-const categories = ["Research", "Smart contracts", "Growth ops", "Data labeling", "Agent QA"];
-const times = ["09:00 UTC", "12:00 UTC", "15:00 UTC", "18:00 UTC", "21:00 UTC"];
-const escrowAbi = [
-  {
-    type: "function",
-    name: "postTask",
-    stateMutability: "payable",
-    inputs: [
-      { name: "taskId", type: "bytes32" },
-      { name: "payment", type: "uint256" },
-      { name: "deadline", type: "uint256" },
-      { name: "minReputation", type: "uint256" },
-    ],
-    outputs: [],
-  },
-] as const;
-const GAS_BUFFER = parseEther("0.0002");
+import { DeadlineTimePicker, splitDeadlineTime } from "./DeadlineTimePicker";
+import { PostTaskSuccessDialog } from "./PostTaskSuccessDialog";
+import { RawField } from "./RawField";
+import { TaskTagsInput } from "./TaskTagsInput";
+import {
+  GAS_BUFFER,
+  categories,
+  dateFromDateString,
+  dateStringFromDate,
+  defaultDeadlineDate,
+  escrowAbi,
+  formatDeadlineDate,
+  rememberTaskMetadata,
+  startOfToday,
+} from "./postTaskUtils";
 
 export function PostTaskForm() {
   const router = useRouter();
@@ -50,7 +48,6 @@ export function PostTaskForm() {
   const { writeContractAsync } = useWriteContract();
   const { data: balance } = useBalance({ address, chainId: galileo.id });
   const [tags, setTags] = React.useState(["risk", "citations"]);
-  const [draftTag, setDraftTag] = React.useState("");
   const [title, setTitle] = React.useState("Produce a diligence memo for a 0G ecosystem partner");
   const [description, setDescription] = React.useState(
     "Scope the partner, cite risks, return next steps, confidence, and proof-backed output.",
@@ -58,36 +55,38 @@ export function PostTaskForm() {
   const [category, setCategory] = React.useState("Research");
   const [payout, setPayout] = React.useState("0.0004");
   const [bond, setBond] = React.useState("0.0001");
-  const [deadlineDate, setDeadlineDate] = React.useState("2026-06-24");
-  const [deadlineTime, setDeadlineTime] = React.useState("18:00 UTC");
+  const [deadlineDate, setDeadlineDate] = React.useState(defaultDeadlineDate);
+  const [deadlineTime, setDeadlineTime] = React.useState("18:00");
+  const [deadlineCalendarOpen, setDeadlineCalendarOpen] = React.useState(false);
+  const [deadlineTimeOpen, setDeadlineTimeOpen] = React.useState(false);
   const [minimumReputation, setMinimumReputation] = React.useState("0");
   const [running, setRunning] = React.useState(false);
   const [txHash, setTxHash] = React.useState<Hex | undefined>();
+  const [postedTaskId, setPostedTaskId] = React.useState<Hex | undefined>();
+  const [acknowledgedTxHash, setAcknowledgedTxHash] = React.useState<Hex | undefined>();
   const [error, setError] = React.useState("");
+  const successToastTx = React.useRef<Hex | undefined>(undefined);
   const { isLoading: confirming, isSuccess: confirmed } = useWaitForTransactionReceipt({
     hash: txHash,
     chainId: galileo.id,
   });
+  const taskHref = postedTaskId ? `/jobs/${postedTaskId}` : `/jobs?posted=${txHash ?? ""}`;
+  const confirmationOpen = Boolean(confirmed && txHash && acknowledgedTxHash !== txHash);
 
   React.useEffect(() => {
     if (!confirmed || !txHash) return;
+    if (successToastTx.current === txHash) return;
+    successToastTx.current = txHash;
     toast.success("Escrow transaction confirmed");
-    router.push(`/jobs/task-risk-brief?posted=${txHash}`);
-  }, [confirmed, router, txHash]);
+  }, [confirmed, txHash]);
 
-  function commitTag(raw: string) {
-    const next = raw.trim().replace(/,$/, "");
-    if (!next || tags.includes(next)) return;
-    setTags((current) => [...current, next]);
-  }
-
-  function removeTag(tag: string) {
-    setTags((current) => current.filter((item) => item !== tag));
+  function acknowledgeAndOpenTask() {
+    if (txHash) setAcknowledgedTxHash(txHash);
+    router.push(taskHref);
   }
 
   function parseDeadline() {
-    const time = deadlineTime.replace(" UTC", "");
-    const deadlineMs = Date.parse(`${deadlineDate}T${time}:00.000Z`);
+    const deadlineMs = Date.parse(`${deadlineDate}T${deadlineTime}:00.000Z`);
     if (!Number.isFinite(deadlineMs)) throw new Error("Choose a valid UTC deadline.");
     const deadline = Math.floor(deadlineMs / 1000);
     if (deadline <= Math.floor(Date.now() / 1000) + 300) {
@@ -99,6 +98,11 @@ export function PostTaskForm() {
   function parseMinimumReputation() {
     if (!/^\d+$/.test(minimumReputation.trim())) throw new Error("Minimum reputation must be a whole number.");
     return BigInt(minimumReputation.trim());
+  }
+
+  function setDeadlineTimePart(part: "hour" | "minute", value: string) {
+    const current = splitDeadlineTime(deadlineTime);
+    setDeadlineTime(part === "hour" ? `${value}:${current.minute}` : `${current.hour}:${value}`);
   }
 
   function balanceText() {
@@ -150,7 +154,11 @@ export function PostTaskForm() {
         value: payment,
         chainId: galileo.id,
       });
+      setPostedTaskId(taskId);
       setTxHash(hash);
+      try {
+        rememberTaskMetadata({ id: taskId, txHash: hash, title, description, category, tags, createdAt: new Date().toISOString() });
+      } catch {}
       toast.success("Escrow transaction submitted");
     } catch (submitError) {
       const raw = (submitError as Error).message;
@@ -167,131 +175,124 @@ export function PostTaskForm() {
   }
 
   return (
-    <form className="grid gap-6" aria-label="Task brief form" onSubmit={submitTask}>
-      <RawField label="Task title">
-        <Input value={title} onChange={(event) => setTitle(event.target.value)} />
-      </RawField>
-      <RawField label="Description">
-        <Textarea
-          className="min-h-32"
-          value={description}
-          onChange={(event) => setDescription(event.target.value)}
-        />
-      </RawField>
-      <div className="grid gap-6 sm:grid-cols-2">
-        <RawField label="Category">
-          <Select value={category} onValueChange={(value) => value && setCategory(value)}>
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Choose task category" />
-            </SelectTrigger>
-            <SelectContent>
-              {categories.map((category) => (
-                <SelectItem key={category} value={category}>
-                  {category}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+    <>
+      <form className="grid gap-6" aria-label="Task brief form" onSubmit={submitTask}>
+        <RawField label="Task title">
+          <Input value={title} onChange={(event) => setTitle(event.target.value)} />
         </RawField>
-        <RawField label="Tags">
-          <div className="flex min-h-10 flex-wrap items-center gap-2 rounded-lg border border-input bg-background/70 px-2 py-1.5 focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/30">
-            {tags.map((tag) => (
-              <Badge key={tag} variant="secondary" className="gap-1 pr-1">
-                {tag}
-                <button
-                  type="button"
-                  className="rounded-full p-0.5 text-muted-foreground hover:text-foreground"
-                  aria-label={`Remove ${tag}`}
-                  onClick={() => removeTag(tag)}
-                >
-                  <X className="size-3" />
-                </button>
-              </Badge>
-            ))}
-            <input
-              className="min-w-28 flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
-              value={draftTag}
-              placeholder="type then space"
-              onChange={(event) => setDraftTag(event.target.value)}
-              onBlur={() => {
-                commitTag(draftTag);
-                setDraftTag("");
-              }}
-              onKeyDown={(event) => {
-                if (event.key === " " || event.key === "Enter" || event.key === ",") {
-                  event.preventDefault();
-                  commitTag(draftTag);
-                  setDraftTag("");
-                }
-              }}
-            />
-          </div>
-        </RawField>
-        <RawField label="Payout in 0G">
-          <Input inputMode="decimal" value={payout} onChange={(event) => setPayout(event.target.value)} />
-        </RawField>
-        <RawField label="Bond in 0G">
-          <Input inputMode="decimal" value={bond} onChange={(event) => setBond(event.target.value)} />
-        </RawField>
-        <RawField label="Deadline date">
-          <Input inputMode="numeric" value={deadlineDate} onChange={(event) => setDeadlineDate(event.target.value)} />
-        </RawField>
-        <RawField label="Deadline time">
-          <Select value={deadlineTime} onValueChange={(value) => value && setDeadlineTime(value)}>
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Choose time" />
-            </SelectTrigger>
-            <SelectContent>
-              {times.map((time) => (
-                <SelectItem key={time} value={time}>
-                  {time}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </RawField>
-        <RawField label="Minimum reputation">
-          <Input
-            inputMode="decimal"
-            value={minimumReputation}
-            onChange={(event) => setMinimumReputation(event.target.value)}
+        <RawField label="Description">
+          <Textarea
+            className="min-h-32"
+            value={description}
+            onChange={(event) => setDescription(event.target.value)}
           />
         </RawField>
-      </div>
-      <div className="flex flex-wrap items-center gap-3 border-t pt-5">
-        <Button type="submit" data-testid="post-demo-task" disabled={running || confirming}>
-          {!authenticated
-            ? "Connect wallet to post"
-            : running
-              ? "Open wallet to confirm..."
-              : confirming
-                ? "Confirming escrow..."
-                : "Post escrow transaction"}
-          <ArrowRight data-icon="inline-end" />
-        </Button>
-        <span className="text-xs uppercase tracking-[0.14em] text-muted-foreground">
-          Uses the connected wallet. Requires payout plus gas on 0G Galileo.
-        </span>
-      </div>
-      {txHash ? (
-        <div className="rounded-lg border border-accent/40 bg-accent/10 p-3 text-sm text-accent">
-          Transaction submitted: <span className="lz-mono break-all">{txHash}</span>
+        <div className="grid gap-6 sm:grid-cols-2">
+          <RawField label="Category">
+            <Select value={category} onValueChange={(value) => value && setCategory(value)}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Choose task category" />
+              </SelectTrigger>
+              <SelectContent>
+                {categories.map((category) => (
+                  <SelectItem key={category} value={category}>
+                    {category}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </RawField>
+          <RawField label="Tags">
+            <TaskTagsInput tags={tags} onTagsChange={setTags} />
+          </RawField>
+          <RawField label="Payout in 0G">
+            <Input inputMode="decimal" value={payout} onChange={(event) => setPayout(event.target.value)} />
+          </RawField>
+          <RawField label="Bond in 0G">
+            <Input inputMode="decimal" value={bond} onChange={(event) => setBond(event.target.value)} />
+          </RawField>
+          <RawField label="Deadline date">
+            <Popover open={deadlineCalendarOpen} onOpenChange={setDeadlineCalendarOpen}>
+              <PopoverTrigger
+                render={
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full justify-start text-left"
+                  />
+                }
+              >
+                <CalendarIcon data-icon="inline-start" />
+                {formatDeadlineDate(deadlineDate)}
+              </PopoverTrigger>
+              <PopoverContent align="start" className="w-auto p-0">
+                <Calendar
+                  mode="single"
+                  selected={dateFromDateString(deadlineDate)}
+                  defaultMonth={dateFromDateString(deadlineDate)}
+                  disabled={(date) => date < startOfToday()}
+                  onSelect={(date) => {
+                    if (!date) return;
+                    setDeadlineDate(dateStringFromDate(date));
+                    setDeadlineCalendarOpen(false);
+                  }}
+                />
+              </PopoverContent>
+            </Popover>
+          </RawField>
+          <RawField label="Deadline time">
+            <DeadlineTimePicker
+              value={deadlineTime}
+              open={deadlineTimeOpen}
+              onOpenChange={setDeadlineTimeOpen}
+              onValueChange={setDeadlineTime}
+              onPartChange={setDeadlineTimePart}
+            />
+          </RawField>
+          <RawField label="Minimum reputation">
+            <Input
+              inputMode="decimal"
+              value={minimumReputation}
+              onChange={(event) => setMinimumReputation(event.target.value)}
+            />
+          </RawField>
         </div>
-      ) : null}
-      {error ? (
-        <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive">
-          {error}
+        <div className="flex flex-wrap items-center gap-3 border-t pt-5">
+          <Button type="submit" data-testid="post-demo-task" disabled={running || confirming}>
+            {!authenticated
+              ? "Connect wallet to post"
+              : running
+                ? "Open wallet to confirm..."
+                : confirming
+                  ? "Confirming escrow..."
+                  : "Post escrow transaction"}
+            <ArrowRight data-icon="inline-end" />
+          </Button>
+          <span className="text-xs uppercase tracking-[0.14em] text-muted-foreground">
+            Uses the connected wallet. Requires payout plus gas on 0G Galileo.
+          </span>
         </div>
-      ) : null}
-    </form>
-  );
-}
+        {txHash ? (
+          <div className="rounded-lg border border-accent/40 bg-accent/10 p-3 text-sm text-accent">
+            Transaction submitted: <span className="lz-mono break-all">{txHash}</span>
+          </div>
+        ) : null}
+        {error ? (
+          <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive">
+            {error}
+          </div>
+        ) : null}
+      </form>
 
-function RawField({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <label className="grid gap-2 border-t pt-4 text-sm">
-      <span className="text-xs font-semibold uppercase tracking-[0.14em] text-accent">{label}</span>
-      {children}
-    </label>
+      <PostTaskSuccessDialog
+        open={confirmationOpen}
+        onOpenChange={(open) => {
+          if (!open && txHash) setAcknowledgedTxHash(txHash);
+        }}
+        taskId={postedTaskId}
+        txHash={txHash}
+        onViewTask={acknowledgeAndOpenTask}
+      />
+    </>
   );
 }

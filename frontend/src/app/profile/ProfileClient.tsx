@@ -2,16 +2,18 @@
 
 import type { ReactNode } from "react";
 import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import { usePrivy, useWallets } from "@privy-io/react-auth";
 import { useBalance } from "wagmi";
 import { formatUnits } from "viem";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { WorkerCard } from "@/components/ledger-zero";
+import { OwnedWorkerListingActions } from "@/components/marketplace/WorkerMarketActions";
 import { galileo } from "@/lib/chains";
-import type { DemoFlowReceipt } from "@/lib/demo-flow/types";
 import type { AccountSnapshot, DirectoryWorker } from "@/lib/directory";
 
 function sameAddress(a?: string, b?: string) {
@@ -30,10 +32,8 @@ function displayBalance(balance?: { value: bigint; decimals: number; symbol: str
 
 export function ProfileClient({
   workers,
-  latestDemo,
 }: {
   workers: DirectoryWorker[];
-  latestDemo: DemoFlowReceipt | null;
 }) {
   const { ready, authenticated, login, user } = usePrivy();
   const { wallets } = useWallets();
@@ -76,6 +76,7 @@ export function ProfileClient({
           status: job.status,
           payout: job.payout,
           worker: job.acceptedWorker,
+          workerTokenId: job.workerTokenId,
           resultRoot: job.resultRoot,
         })),
         earnings0G: snapshot.earnings0G,
@@ -92,23 +93,8 @@ export function ProfileClient({
       sellerAddress: worker.sellerAddress,
       saleTx: worker.saleTx,
     }));
-    const postedJobs =
-      latestDemo && sameAddress(latestDemo.accounts.buyer, address)
-        ? [
-            {
-              id: latestDemo.taskId,
-              title: latestDemo.task.title,
-              status: "settled",
-              payout: `${latestDemo.economics.taskPayment0G} 0G`,
-              worker: latestDemo.agentName,
-              resultRoot: `0g://${latestDemo.storage.jobResultRoot}`,
-            },
-          ]
-        : [];
-    const earnings0G =
-      latestDemo && sameAddress(latestDemo.accounts.newOwner, address) ? latestDemo.economics.bidAmount0G : "0";
-    return { ownedWorkers, listings, postedJobs, earnings0G };
-  }, [address, latestDemo, snapshot, workers]);
+    return { ownedWorkers, listings, postedJobs: [], earnings0G: "0" };
+  }, [address, snapshot, workers]);
 
   if (!ready) {
     return <ConnectPanel title="Loading wallet state" subtitle="Checking Privy and Galileo wallet state." />;
@@ -133,6 +119,12 @@ export function ProfileClient({
     { label: "Listings", value: String(account.listings.length), tone: "default" },
     { label: "Earnings", value: `${account.earnings0G} 0G`, tone: "default" },
   ] as const;
+  const snapshotPending = snapshotStatus === "idle";
+  const chainEventCount =
+    (snapshot?.chain?.marketplace.length ?? 0) +
+    (snapshot?.chain?.postedTasks.length ?? 0) +
+    (snapshot?.chain?.releases.length ?? 0);
+  const ownedWorkerByToken = new Map(account.ownedWorkers.map((ownedWorker) => [ownedWorker.tokenId, ownedWorker]));
 
   return (
     <div className="grid gap-6" data-testid="connected-profile">
@@ -173,10 +165,29 @@ export function ProfileClient({
         </TabsList>
 
         <TabsContent value="workers">
-          {account.ownedWorkers.length ? (
+          {snapshotPending ? (
+            <WorkersLoadingGrid />
+          ) : account.ownedWorkers.length ? (
             <div className="lz-grid cols-3">
               {account.ownedWorkers.map((worker) => (
-                <WorkerCard key={`${worker.source}-${worker.tokenId}`} worker={worker} />
+                <div key={`${worker.source}-${worker.tokenId}`} className="grid gap-3">
+                  <WorkerCard worker={worker} />
+                  <section className="rounded-xl border bg-card/45 p-4">
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <div className="grid gap-1">
+                        <div className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                          Marketplace control
+                        </div>
+                        <div className="text-sm text-muted-foreground">
+                          {worker.listingStatus === "listed"
+                            ? `Live at ${worker.price}. You can cancel the listing if you want to keep the worker.`
+                            : "List this worker for sale directly from your connected owner wallet."}
+                        </div>
+                      </div>
+                      <OwnedWorkerListingActions worker={worker} />
+                    </div>
+                  </section>
+                </div>
               ))}
             </div>
           ) : (
@@ -191,10 +202,13 @@ export function ProfileClient({
           <DataSurface
             title="Posted jobs"
             subtitle="Escrow tasks created by this connected wallet."
-            empty={!account.postedJobs.length}
+            empty={!snapshotPending && !account.postedJobs.length}
             emptyTitle="No posted jobs"
             emptyText="Jobs posted by this wallet will appear here once task escrow is created."
           >
+            {snapshotPending ? (
+              <TableLoading rows={4} columns={5} />
+            ) : (
             <Table>
               <TableHeader>
                 <TableRow>
@@ -205,18 +219,37 @@ export function ProfileClient({
                   <TableHead>Result root</TableHead>
                 </TableRow>
               </TableHeader>
-              <TableBody>
-                {account.postedJobs.map((job) => (
-                  <TableRow key={job.id}>
-                    <TableCell className="font-medium">{job.title}</TableCell>
-                    <TableCell>{job.status}</TableCell>
-                    <TableCell>{job.payout}</TableCell>
-                    <TableCell>{job.worker}</TableCell>
-                    <TableCell className="lz-mono max-w-[280px] truncate text-xs">{job.resultRoot}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                <TableBody>
+                  {account.postedJobs.map((job) => (
+                    <TableRow key={job.id}>
+                      <TableCell className="font-medium">
+                        <Link
+                          href={`/jobs/${job.id}`}
+                          className="text-foreground underline-offset-4 transition hover:text-accent hover:underline"
+                        >
+                          {job.title}
+                        </Link>
+                      </TableCell>
+                      <TableCell>{job.status}</TableCell>
+                      <TableCell>{job.payout}</TableCell>
+                      <TableCell>
+                        {job.workerTokenId ? (
+                          <Link
+                            href={`/agent/token-${job.workerTokenId}`}
+                            className="text-foreground underline-offset-4 transition hover:text-accent hover:underline"
+                          >
+                            {job.worker}
+                          </Link>
+                        ) : (
+                          job.worker
+                        )}
+                      </TableCell>
+                      <TableCell className="lz-mono max-w-[280px] truncate text-xs">{job.resultRoot}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            )}
           </DataSurface>
         </TabsContent>
 
@@ -224,10 +257,13 @@ export function ProfileClient({
           <DataSurface
             title="Marketplace listings"
             subtitle="Listings posted by this wallet across active and historical states."
-            empty={!account.listings.length}
+            empty={!snapshotPending && !account.listings.length}
             emptyTitle="No listings"
             emptyText="Listings created by this wallet will appear here after a worker is listed for sale."
           >
+            {snapshotPending ? (
+              <TableLoading rows={4} columns={5} />
+            ) : (
             <Table>
               <TableHeader>
                 <TableRow>
@@ -236,47 +272,105 @@ export function ProfileClient({
                   <TableHead>Status</TableHead>
                   <TableHead>Price</TableHead>
                   <TableHead>Source</TableHead>
+                  <TableHead>Action</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {account.listings.map((listing) => (
                   <TableRow key={`${listing.source}-${listing.tokenId}`}>
-                    <TableCell className="font-medium">{listing.workerName}</TableCell>
-                    <TableCell>#{listing.tokenId}</TableCell>
-                    <TableCell>{listing.status}</TableCell>
+                    <TableCell className="font-medium">
+                      <Link
+                        href={`/agent/token-${listing.tokenId}`}
+                        className="text-foreground underline-offset-4 transition hover:text-accent hover:underline"
+                      >
+                        {listing.workerName}
+                      </Link>
+                    </TableCell>
+                    <TableCell>
+                      <Link
+                        href={`/agent/token-${listing.tokenId}`}
+                        className="underline-offset-4 transition hover:text-accent hover:underline"
+                      >
+                        #{listing.tokenId}
+                      </Link>
+                    </TableCell>
+                    <TableCell>
+                      <Link
+                        href={listing.status === "listed" ? "/marketplace" : listing.saleTx ? "/proof" : `/agent/token-${listing.tokenId}`}
+                        className="underline-offset-4 transition hover:text-accent hover:underline"
+                      >
+                        {listing.status}
+                      </Link>
+                    </TableCell>
                     <TableCell>{listing.price}</TableCell>
                     <TableCell>{listing.source}</TableCell>
+                    <TableCell>
+                      {ownedWorkerByToken.get(listing.tokenId) ? (
+                        <OwnedWorkerListingActions worker={ownedWorkerByToken.get(listing.tokenId)!} />
+                      ) : (
+                        <span className="text-sm text-muted-foreground">Worker no longer owned by this wallet.</span>
+                      )}
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
             </Table>
+            )}
           </DataSurface>
         </TabsContent>
 
         <TabsContent value="earnings">
           <section className="grid gap-4 md:grid-cols-3">
-            <MetricTile label="Recorded earnings" value={`${account.earnings0G} 0G`} />
-            <MetricTile label="Release events" value={String(snapshot?.chain?.releases.length ?? 0)} />
-            <MetricTile label="Payout rule" value="ownerOf(workerTokenId)" />
+            {snapshotPending ? (
+              <>
+                <MetricLoading />
+                <MetricLoading />
+                <MetricLoading />
+              </>
+            ) : (
+              <>
+                <MetricTile label="Recorded earnings" value={`${account.earnings0G} 0G`} />
+                <MetricTile label="Release events" value={String(snapshot?.chain?.releases.length ?? 0)} />
+                <MetricTile label="Payout rule" value="ownerOf(workerTokenId)" />
+              </>
+            )}
           </section>
         </TabsContent>
 
         <TabsContent value="chain">
           <div className="grid gap-4">
             <section className="grid gap-4 md:grid-cols-4">
-              <MetricTile label="Owned token ids" value={snapshot?.chain?.ownedTokenIds.join(", ") || "none"} />
-              <MetricTile label="Task posts" value={String(snapshot?.chain?.postedTasks.length ?? 0)} />
-              <MetricTile label="Marketplace" value={String(snapshot?.chain?.marketplace.length ?? 0)} />
-              <MetricTile label="Releases" value={String(snapshot?.chain?.releases.length ?? 0)} />
+              {snapshotPending ? (
+                <>
+                  <MetricLoading />
+                  <MetricLoading />
+                  <MetricLoading />
+                  <MetricLoading />
+                </>
+              ) : (
+                <>
+                  <MetricTile label="Owned token ids" value={snapshot?.chain?.ownedTokenIds.join(", ") || "none"} />
+                  <MetricTile label="Task posts" value={String(snapshot?.chain?.postedTasks.length ?? 0)} />
+                  <MetricTile label="Marketplace" value={String(snapshot?.chain?.marketplace.length ?? 0)} />
+                  <MetricTile label="Releases" value={String(snapshot?.chain?.releases.length ?? 0)} />
+                </>
+              )}
             </section>
 
             <DataSurface
               title="Galileo event feed"
               subtitle="Direct account-scoped reads for marketplace, job, and release activity."
-              empty={!snapshot?.chain}
-              emptyTitle="Chain snapshot unavailable"
-              emptyText="Reconnect or retry once the account snapshot endpoint responds again."
+              empty={!snapshotPending && (!snapshot?.chain || chainEventCount === 0)}
+              emptyTitle={snapshot?.chain ? "No chain activity yet" : "Chain snapshot unavailable"}
+              emptyText={
+                snapshot?.chain
+                  ? "Marketplace events, task posts, and release receipts for this wallet will appear here once the chain has matching activity."
+                  : "Reconnect or retry once the account snapshot endpoint responds again."
+              }
             >
+              {snapshotPending ? (
+                <TableLoading rows={6} columns={4} />
+              ) : (
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -313,10 +407,51 @@ export function ProfileClient({
                   ))}
                 </TableBody>
               </Table>
+              )}
             </DataSurface>
           </div>
         </TabsContent>
       </Tabs>
+    </div>
+  );
+}
+
+function WorkersLoadingGrid() {
+  return (
+    <div className="lz-grid cols-3">
+      {Array.from({ length: 3 }).map((_, index) => (
+        <div key={index} className="overflow-hidden rounded-xl border bg-card/55">
+          <Skeleton className="aspect-[4/3] w-full" />
+          <div className="grid gap-3 p-4">
+            <Skeleton className="h-4 w-24" />
+            <Skeleton className="h-6 w-2/3" />
+            <Skeleton className="h-12 w-full" />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function TableLoading({ rows, columns }: { rows: number; columns: number }) {
+  return (
+    <div className="grid gap-3">
+      {Array.from({ length: rows }).map((_, rowIndex) => (
+        <div key={rowIndex} className="grid gap-3 rounded-xl border bg-background/35 p-4" style={{ gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` }}>
+          {Array.from({ length: columns }).map((__, colIndex) => (
+            <Skeleton key={colIndex} className="h-4 w-full" />
+          ))}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function MetricLoading() {
+  return (
+    <div className="rounded-xl border bg-card/55 p-4">
+      <Skeleton className="h-3 w-24" />
+      <Skeleton className="mt-3 h-7 w-20" />
     </div>
   );
 }

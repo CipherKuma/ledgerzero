@@ -1,10 +1,10 @@
 {
   "kind": "LedgerZeroAgentRegistration",
   "type": "LedgerZeroAgentRegistration",
-  "createdAt": "2026-06-23T18:49:55.415Z",
-  "manifestUrl": "0g://0xc105e5ae848aa0810ee44d50e6ed2951fe64fb983d2188c7fdfc1b8a58b62d46",
+  "createdAt": "2026-06-24T20:40:58.324Z",
+  "manifestUrl": "http://localhost:3023/agent-manifests/hermes.json",
   "framework": "hermes",
-  "agentName": "lz-hermes-mqr018lz",
+  "agentName": "lz-hermes-mqsjfwes",
   "operatorAddress": "0xFF8eF7B9EdD1Bf80A3454200CA2fb6AaCED3E120",
   "ownerAddress": "0xFF8eF7B9EdD1Bf80A3454200CA2fb6AaCED3E120",
   "capabilities": [
@@ -12,30 +12,30 @@
     "research.skill-growth",
     "research.source-audit"
   ],
-  "memoryRoot": "0x2b9760e4f734541537a0764bc71eb41d4c447331c7d09849d5e0710beba48f6b",
-  "manifestRoot": "0xc105e5ae848aa0810ee44d50e6ed2951fe64fb983d2188c7fdfc1b8a58b62d46",
-  "tokenId": "14",
-  "registrationRoot": "0x59d22729dc6f49ebf9badb6b53fb66a769fa0af412ad686f8b9cb0c90d32cd9b",
+  "memoryRoot": "0xad68cf6dff3ebeb94c761c2c33d1e482a95f1c94663811b715765ea97a6d74ee",
+  "manifestRoot": "0xe5bc68dacb3417af8f1af86d8c404b7598d972b6d9894faea80e398edd83dfc8",
+  "tokenId": "21",
+  "registrationRoot": "0x23270788bfabe3de5d0ea19d857c4b8d695ab7ebc47c44ef1603454be04d5d23",
   "storageTxs": {
-    "memoryProfile": "0x313c185879f0bdef64d265289785bbb8ede1195433f1626e15d7e84df68228f3",
-    "capabilityManifest": "0x79db95b7d6f83acfadc0927578bf5815620c6464bb5b785562d954bfc4b47310",
-    "registrationReceipt": "0x356dfa835fea05277795b0044b8f3b5b90db17a1b9e91fa4836b86e4985afa9b"
+    "memoryProfile": "0x9b4003fedeff2c2f1e7d87092b329a043c1c63791a67671690b7e1555e6f447d",
+    "capabilityManifest": "0x330e86b53dddafde74b853402ba0dc9aa37f9e3c80314433c2fa03cb29e7e7f9",
+    "registrationReceipt": "0xfa2430353e70d5b9b17d65bfb486cd1d6d6d5c6d8ec654889945d615485c55ca"
   },
   "chainTxs": [
     {
       "label": "mint WorkerINFT",
-      "hash": "0xb0f1a1dad9664882630581fccf99dc07acc8ce703c8c318104734f8942959e4f",
-      "block": 40352724
+      "hash": "0x7a94aaee12f767b4ddd14a32b2a7c84a4373773ca2a7b7234ac4e48e282dbc96",
+      "block": 40541031
     },
     {
       "label": "register capability",
-      "hash": "0xa210feaee49f630b8d1483a15e12894e5e6afac19d8210a174a610b9e6ccb473",
-      "block": 40352746
+      "hash": "0x5e8af92d623be86e66c1a2a3d176a023edc8f9cceb6d2ac92f03a19247c2db04",
+      "block": 40541053
     },
     {
       "label": "register identity",
-      "hash": "0xd7564a1b3f49ad6598bbb8f28a669838d30a0c258deab588aec3264f0282b524",
-      "block": 40352767
+      "hash": "0xfebb314e9759bda2bb2bf0b291110da68d76224ee7aa8986bb04273f6f8bdc78",
+      "block": 40541072
     }
   ],
   "contractAddresses": {
@@ -49,8 +49,16 @@
     "price0G": "11.8",
     "payoutRule": "ownerOf(workerTokenId)"
   },
+  "automation": {
+    "mode": "polling",
+    "jobsUrl": "http://localhost:3023/api/onchain/jobs",
+    "pollSeconds": 15,
+    "autoBid": false,
+    "requiresOwnerSigner": true
+  },
   "proofNotes": [
     "Manifest and encrypted-memory profile were uploaded to 0G Storage.",
+    "Registered workers must run their declared listener to discover and bid on posted jobs.",
     "Worker revenue resolves through ownerOf(workerTokenId), not a platform account.",
     "MockTEEOracle remains a demo verifier and is not represented as real TEE."
   ]
