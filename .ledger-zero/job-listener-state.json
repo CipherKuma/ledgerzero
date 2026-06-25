@@ -8,6 +8,60 @@
       "postedTx": "0xa618ddd94e3c853f9e6a6c8f20983c1bff4389277532e6d8545f592b5c6bb0be",
       "bidTx": null,
       "bidBlock": null
+    },
+    "0x163f5bac2153dcef97929b541cc5c5e465adb6f7699d22b7a4870c368b08df1b": {
+      "taskId": "0x163f5bac2153dcef97929b541cc5c5e465adb6f7699d22b7a4870c368b08df1b",
+      "status": "notified",
+      "notifiedAt": "2026-06-24T23:59:44.535Z",
+      "updatedAt": "2026-06-24T23:59:44.544Z",
+      "postedTx": "0x2f0e43c5434c9ed9d1b373cbfb28ab6c030982145a1abeaec305f90d1244e0af",
+      "bidTx": null,
+      "bidBlock": null
+    },
+    "0x1b37620cae098e44985c09b5ef4570ad6f3db4ecfcee8146e55c141d5622d375": {
+      "taskId": "0x1b37620cae098e44985c09b5ef4570ad6f3db4ecfcee8146e55c141d5622d375",
+      "status": "notified",
+      "notifiedAt": "2026-06-25T02:42:53.274Z",
+      "updatedAt": "2026-06-25T02:42:53.278Z",
+      "postedTx": "0xd8d9db68d92aa19ef6dd7413e8ab0e1b149ea51cbace0dd8e6da565aeea2f74f",
+      "bidTx": null,
+      "bidBlock": null
+    },
+    "0xb658dce1a91daf2a94adfad5d42add173fe476fa46ee58a1fcb0b915834999fc": {
+      "taskId": "0xb658dce1a91daf2a94adfad5d42add173fe476fa46ee58a1fcb0b915834999fc",
+      "status": "notified",
+      "notifiedAt": "2026-06-25T02:42:53.279Z",
+      "updatedAt": "2026-06-25T02:42:53.282Z",
+      "postedTx": "0x91cfc4de7dc2884166aaa8ed48765ebe3d0071f3b1b1ff0966480011f5b99e57",
+      "bidTx": null,
+      "bidBlock": null
+    },
+    "0x31aa48603698155e5f19e3af8c974ce96ade59bb882d77c2f234bdbe769cd614": {
+      "taskId": "0x31aa48603698155e5f19e3af8c974ce96ade59bb882d77c2f234bdbe769cd614",
+      "status": "notified",
+      "notifiedAt": "2026-06-25T02:42:53.282Z",
+      "updatedAt": "2026-06-25T02:42:53.284Z",
+      "postedTx": "0xa255caa77ba94990bf931ebddcb8012351cc42d56b77b3f6529ecde25cc8b5d9",
+      "bidTx": null,
+      "bidBlock": null
+    },
+    "0xa20a83b8fea69abb2a465d470c3491bd7174d0394be90d2b54f8c4e6088b6dbe": {
+      "taskId": "0xa20a83b8fea69abb2a465d470c3491bd7174d0394be90d2b54f8c4e6088b6dbe",
+      "status": "notified",
+      "notifiedAt": "2026-06-25T05:44:15.604Z",
+      "updatedAt": "2026-06-25T05:44:15.609Z",
+      "postedTx": "0xca4ab67b162cd04c17b5758090ca186988ee7347814c0638016db89398064516",
+      "bidTx": null,
+      "bidBlock": null
+    },
+    "0xee5da7a0c6789b494e2b937dbfe297a25c263b472e5263672c40e9f9e2af6ac1": {
+      "taskId": "0xee5da7a0c6789b494e2b937dbfe297a25c263b472e5263672c40e9f9e2af6ac1",
+      "status": "notified",
+      "notifiedAt": "2026-06-25T05:44:15.609Z",
+      "updatedAt": "2026-06-25T05:44:15.612Z",
+      "postedTx": "0x02fe44ba8893d849b247a53b6c7d861ee802bca05e1d796b571586ae8a8ad526",
+      "bidTx": null,
+      "bidBlock": null
     }
   }
 }
