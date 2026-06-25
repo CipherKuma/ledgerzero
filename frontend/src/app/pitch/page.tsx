@@ -17,10 +17,10 @@ const proof = [
 function Slide({ num, label, children }: { num: string; label: string; children: ReactNode }) {
   return (
     <section className="grid min-h-screen place-items-center px-4 py-10">
-      <div className="relative min-h-[720px] w-full max-w-7xl overflow-hidden rounded-[10px] border border-[#d9b56f]/25 bg-[#080b10] shadow-2xl shadow-black/40 md:aspect-video md:min-h-0">
-        <div className="absolute left-8 top-7 z-10 flex items-center gap-4 font-mono text-xs uppercase tracking-[0.24em] text-[#d9b56f]">
+      <div className="relative min-h-[720px] w-full max-w-7xl overflow-hidden rounded-[10px] border border-[#ff8a24]/25 bg-[#080b10] shadow-2xl shadow-black/40 md:aspect-video md:min-h-0">
+        <div className="absolute left-8 top-7 z-10 flex items-center gap-4 font-mono text-xs uppercase tracking-[0.24em] text-[#ffcf62]">
           <span>{num}</span>
-          <span className="h-px w-14 bg-[#d9b56f]/40" />
+          <span className="h-px w-14 bg-[#ff8a24]/45" />
           <span>{label}</span>
         </div>
         {children}
@@ -31,15 +31,15 @@ function Slide({ num, label, children }: { num: string; label: string; children:
 
 export default function PitchPage() {
   return (
-    <main className="min-h-screen snap-y snap-mandatory overflow-x-hidden bg-[#06080b] text-[#f6f0e8]">
+    <main className="min-h-screen snap-y snap-mandatory overflow-x-hidden bg-[#080b10] text-[#fff4dc]">
       <Slide num="01" label="Marketplace thesis">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_76%_18%,rgba(217,181,111,0.25),transparent_28%),linear-gradient(135deg,#06080b,#101820_58%,#261f14)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_76%_18%,rgba(255,138,36,0.24),transparent_28%),radial-gradient(circle_at_16%_48%,rgba(7,90,159,0.22),transparent_34%),linear-gradient(135deg,#080b10,#061a2a_58%,#2b1306)]" />
         <div className="absolute right-0 top-0 h-full w-[45%]">
           <Image src="/cover.jpg" alt="Ledger Zero marketplace" fill priority className="object-cover opacity-70" />
-          <div className="absolute inset-0 bg-gradient-to-l from-transparent to-[#06080b]" />
+          <div className="absolute inset-0 bg-gradient-to-l from-transparent to-[#080b10]" />
         </div>
         <div className="absolute left-6 right-6 top-24 max-w-3xl md:left-16 md:right-auto md:top-28">
-          <Link href="/" className="font-mono text-xs uppercase tracking-[0.28em] text-[#d9b56f]">
+          <Link href="/" className="font-mono text-xs uppercase tracking-[0.28em] text-[#ffcf62]">
             Ledger Zero
           </Link>
           <h1 className="mt-8 font-display text-[40px] uppercase leading-[0.92] tracking-tight md:text-[82px] md:leading-[0.86]">
@@ -50,7 +50,7 @@ export default function PitchPage() {
           </p>
         </div>
         <div className="absolute bottom-12 left-16 flex gap-3">
-          <Link href="/marketplace" className="rounded-md bg-[#d9b56f] px-5 py-3 text-sm font-black text-black">
+          <Link href="/marketplace" className="rounded-md bg-[#ff8a24] px-5 py-3 text-sm font-black text-[#170804]">
             Browse marketplace
           </Link>
           <a href="/demo.mp4" className="rounded-md border border-white/20 px-5 py-3 text-sm font-black">
@@ -62,15 +62,15 @@ export default function PitchPage() {
       <Slide num="02" label="The market gap">
         <div className="absolute inset-0 bg-[#f3eee4] text-[#15110c]" />
         <div className="absolute left-16 top-28 w-[47%]">
-          <p className="font-mono text-sm uppercase tracking-[0.3em] text-[#9d6d1d]">AI labor has no balance sheet</p>
+          <p className="font-mono text-sm uppercase tracking-[0.3em] text-[#8f1018]">AI labor has no balance sheet</p>
           <h2 className="mt-8 font-display text-[72px] uppercase leading-[0.9]">
             Teams pay agents, but cannot own the worker that learns.
           </h2>
         </div>
         <div className="absolute right-16 top-28 grid w-[42%] gap-5">
           {["Memory locked in platforms", "Capabilities hard to inspect", "Revenue disconnected from ownership"].map((item, index) => (
-            <div key={item} className="border-l-4 border-[#9d6d1d] bg-white p-7 shadow-xl shadow-black/10">
-              <p className="font-mono text-sm text-[#9d6d1d]">Gap 0{index + 1}</p>
+            <div key={item} className="border-l-4 border-[#ff8a24] bg-white p-7 shadow-xl shadow-black/10">
+              <p className="font-mono text-sm text-[#8f1018]">Gap 0{index + 1}</p>
               <p className="mt-3 text-[31px] font-black leading-tight">{item}</p>
             </div>
           ))}
@@ -84,8 +84,8 @@ export default function PitchPage() {
         </h2>
         <div className="absolute bottom-16 left-16 right-16 grid grid-cols-3 gap-5">
           {market.map(([title, text], index) => (
-            <article key={title} className="min-h-[330px] border border-[#d9b56f]/25 bg-white/[0.05] p-8">
-              <p className="font-display text-[72px] text-[#d9b56f]">0{index + 1}</p>
+            <article key={title} className="min-h-[330px] border border-[#ff8a24]/25 bg-white/[0.05] p-8">
+              <p className="font-display text-[72px] text-[#ffcf62]">0{index + 1}</p>
               <h3 className="mt-5 text-[36px] font-black">{title}</h3>
               <p className="mt-4 text-[22px] leading-[1.35] text-[#f6f0e8]/68">{text}</p>
             </article>
@@ -94,14 +94,14 @@ export default function PitchPage() {
       </Slide>
 
       <Slide num="04" label="0G architecture">
-        <div className="absolute inset-0 bg-[linear-gradient(135deg,#050608,#19130a)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(135deg,#050608,#071421_48%,#2b1306)]" />
         <h2 className="absolute left-16 top-28 max-w-3xl font-display text-[74px] uppercase leading-[0.9]">
           Proof is what makes this a market, not a directory.
         </h2>
         <div className="absolute right-16 top-28 grid w-[43%] gap-5">
           {proof.map(([label, text]) => (
-            <article key={label} className="rounded-md border border-[#d9b56f]/25 bg-[#f6f0e8] p-7 text-[#15110c]">
-              <p className="font-mono text-sm uppercase tracking-[0.24em] text-[#9d6d1d]">{label}</p>
+            <article key={label} className="rounded-md border border-[#ff8a24]/25 bg-[#fff4dc] p-7 text-[#15110c]">
+              <p className="font-mono text-sm uppercase tracking-[0.24em] text-[#8f1018]">{label}</p>
               <p className="mt-4 text-[27px] font-black leading-tight">{text}</p>
             </article>
           ))}
@@ -120,17 +120,17 @@ export default function PitchPage() {
             ["Clip 03", "Proof Center", "Scroll live/demo/fallback labels and wallet/profile ownership."],
           ].map(([clip, title, text]) => (
             <article key={clip} className="min-h-[360px] bg-[#080b10] p-7 text-[#f6f0e8]">
-              <p className="font-mono text-sm uppercase tracking-[0.24em] text-[#d9b56f]">{clip}</p>
+              <p className="font-mono text-sm uppercase tracking-[0.24em] text-[#ffcf62]">{clip}</p>
               <h3 className="mt-7 text-[34px] font-black leading-tight">{title}</h3>
               <p className="mt-5 text-[22px] leading-[1.35] text-[#f6f0e8]/68">{text}</p>
-              <div className="mt-8 h-24 rounded-md border border-dashed border-[#d9b56f]/45 bg-[#d9b56f]/10" />
+              <div className="mt-8 h-24 rounded-md border border-dashed border-[#ff8a24]/45 bg-[#ff8a24]/10" />
             </article>
           ))}
         </div>
       </Slide>
 
       <Slide num="06" label="Close">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_72%_18%,rgba(217,181,111,0.3),transparent_30%),#06080b]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_72%_18%,rgba(255,138,36,0.3),transparent_30%),radial-gradient(circle_at_20%_44%,rgba(7,90,159,0.2),transparent_34%),#080b10]" />
         <div className="absolute left-16 top-28 max-w-4xl">
           <h2 className="font-display text-[84px] uppercase leading-[0.88]">
             The marketplace layer for AI labor that can be owned, hired, and sold.
@@ -140,7 +140,7 @@ export default function PitchPage() {
           </p>
         </div>
         <div className="absolute bottom-16 left-16 flex gap-4">
-          <Link href="/marketplace" className="rounded-md bg-[#d9b56f] px-6 py-4 text-sm font-black text-black">
+          <Link href="/marketplace" className="rounded-md bg-[#ff8a24] px-6 py-4 text-sm font-black text-[#170804]">
             Open marketplace
           </Link>
           <a href="/demo.mp4" className="rounded-md border border-white/20 px-6 py-4 text-sm font-black">

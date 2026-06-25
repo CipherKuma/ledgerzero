@@ -37,10 +37,10 @@ const projects: Project[] = [
     name: 'ScribeZero',
     domain: 'scribezero.pages.dev',
     logo: 'logo.png',
-    accent: '#2ddc91',
-    accent2: '#fff4b8',
-    bg: '#06110c',
-    fg: '#f7fff9',
+    accent: '#84c4a0',
+    accent2: '#f5efe2',
+    bg: '#0e0f0d',
+    fg: '#f5efe2',
     audioRate: 1.234,
     scenes: [
       {seconds: 29, label: '01 / hook', title: 'A medical record should survive the app that created it.', body: 'ScribeZero turns the clinical conversation into patient-owned medical memory.', audio: 'audio/final/scribezero-01-hook.mp3', points: ['Conversation first', 'Patient-owned', 'Private proof']},
@@ -58,9 +58,9 @@ const projects: Project[] = [
     name: '0G World Cup',
     domain: '0g-world-cup.pages.dev',
     logo: 'logo.png',
-    accent: '#d7ff4f',
-    accent2: '#6fffd2',
-    bg: '#051108',
+    accent: '#ff3045',
+    accent2: '#ffffff',
+    bg: '#050507',
     fg: '#ffffff',
     audioRate: 1.096,
     scenes: [
@@ -79,9 +79,9 @@ const projects: Project[] = [
     name: '0G Arcade Arena',
     domain: '0g-arcade-arena.pages.dev',
     logo: 'logo.jpg',
-    accent: '#46ff9f',
-    accent2: '#fff0a8',
-    bg: '#030607',
+    accent: '#b56cff',
+    accent2: '#e7c7ff',
+    bg: '#08020d',
     fg: '#ffffff',
     audioRate: 1.047,
     scenes: [
@@ -100,10 +100,10 @@ const projects: Project[] = [
     name: 'Ledger Zero',
     domain: 'ledgerzero.pages.dev',
     logo: 'logo.jpg',
-    accent: '#d9b56f',
-    accent2: '#7dd7ff',
-    bg: '#06080b',
-    fg: '#f6f0e8',
+    accent: '#ff8a24',
+    accent2: '#ffcf62',
+    bg: '#080b10',
+    fg: '#fff4dc',
     audioRate: 1.049,
     scenes: [
       {seconds: 30, label: '01 / hook', title: 'AI workers should be assets, not rented sessions.', body: 'Ledger Zero is a marketplace for AI labor that can be owned, hired, and sold.', audio: 'audio/final/ledgerzero-01-hook.mp3', points: ['Own', 'Hire', 'Sell']},
@@ -122,9 +122,9 @@ function Background({project}: {project: Project}) {
   const frame = useCurrentFrame();
   const x = interpolate(frame, [0, totalSeconds * fps], [-30, 120]);
   return <AbsoluteFill style={{background: project.bg, overflow: 'hidden'}}>
-    <div style={{position: 'absolute', inset: 0, background: `linear-gradient(125deg, ${project.bg}, #020202 58%, ${project.accent}22)`}} />
-    <div style={{position: 'absolute', left: `${x}%`, top: -120, width: 310, height: 980, transform: 'skewX(-13deg)', background: `${project.accent}20`}} />
-    <div style={{position: 'absolute', inset: 0, opacity: 0.18, backgroundImage: 'linear-gradient(rgba(255,255,255,.08) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.08) 1px, transparent 1px)', backgroundSize: '58px 58px'}} />
+    <div style={{position: 'absolute', inset: 0, background: `radial-gradient(circle at 18% 16%, ${project.accent}2e, transparent 28%), radial-gradient(circle at 78% 18%, ${project.accent2}20, transparent 30%), linear-gradient(125deg, ${project.bg}, #020202 58%, ${project.accent}18)`}} />
+    <div style={{position: 'absolute', left: `${x}%`, top: -120, width: 310, height: 980, transform: 'skewX(-13deg)', background: `linear-gradient(180deg, ${project.accent}2d, ${project.accent2}18)`}} />
+    <div style={{position: 'absolute', inset: 0, opacity: 0.16, backgroundImage: `linear-gradient(${project.accent2}18 1px, transparent 1px), linear-gradient(90deg, ${project.accent}16 1px, transparent 1px)`, backgroundSize: '58px 58px'}} />
   </AbsoluteFill>;
 }
 
@@ -143,7 +143,7 @@ function Header({project, scene}: {project: Project; scene: Scene}) {
 
 function PointGrid({project, points}: {project: Project; points: string[]}) {
   return <div style={{display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 14}}>
-    {points.map((point, index) => <div key={point} style={{border: `1px solid ${project.accent}66`, background: index === 0 ? project.accent : '#ffffff12', color: index === 0 ? '#050505' : project.fg, minHeight: 88, borderRadius: 10, padding: 18, display: 'flex', alignItems: 'center', fontSize: 23, lineHeight: 1.08, fontWeight: 950}}>{point}</div>)}
+    {points.map((point, index) => <div key={point} style={{border: `1px solid ${index === 0 ? project.accent : project.accent2}66`, background: index === 0 ? project.accent : `${project.accent}14`, color: index === 0 ? project.bg : project.fg, minHeight: 88, borderRadius: 10, padding: 18, display: 'flex', alignItems: 'center', boxShadow: index === 0 ? `0 0 42px ${project.accent}25` : 'none', fontSize: 23, lineHeight: 1.08, fontWeight: 950}}>{point}</div>)}
   </div>;
 }
 
