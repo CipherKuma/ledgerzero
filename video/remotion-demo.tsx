@@ -24,6 +24,7 @@ type Project = {
   accent2: string;
   bg: string;
   fg: string;
+  audioRate: number;
   scenes: Scene[];
 };
 
@@ -40,15 +41,16 @@ const projects: Project[] = [
     accent2: '#fff4b8',
     bg: '#06110c',
     fg: '#f7fff9',
+    audioRate: 1.234,
     scenes: [
-      {seconds: 20, label: '01 / hook', title: 'A medical record should survive the app that created it.', body: 'ScribeZero turns the clinical conversation into patient-owned medical memory.', audio: 'audio/final/scribezero-01-hook.mp3', points: ['Conversation first', 'Patient-owned', 'Private proof']},
-      {seconds: 28, label: '02 / problem', title: 'Care speaks local. Records do not.', body: 'Tamil and Hindi consults get forced into English-first forms, rushed notes, and trapped portals.', audio: 'audio/final/scribezero-02-problem.mp3', points: ['Local language care', 'Lost continuity', 'Manual documentation']},
-      {seconds: 26, label: '03 / product loop', title: 'Listen. Structure. Seal. Verify.', body: 'The product is not just transcription. It is the workflow after transcription.', audio: 'audio/final/scribezero-03-product-loop.mp3', points: ['SOAP note', 'Timeline', 'Record handle']},
-      {seconds: 44, label: '04 / live demo', title: 'Consult to SOAP note', body: 'Live flow: record or play a consult, structure the encounter, review the generated note.', audio: 'audio/final/scribezero-04-demo-consult.mp3', video: 'video/final/scribezero-01-consult-to-note.mp4', points: ['Record consult', 'Generate note', 'Clinical review']},
-      {seconds: 40, label: '05 / records', title: 'A note becomes continuity.', body: 'Dashboard, patients, and records make ScribeZero a medical memory layer, not a one-screen demo.', audio: 'audio/final/scribezero-05-demo-records.mp3', video: 'video/final/scribezero-02-patients-records.mp4', points: ['Dashboard', 'Patients', 'Records']},
-      {seconds: 37, label: '06 / proof', title: 'The seal is the product.', body: '0G storage gives the patient a portable ownership handle while private medical content stays protected.', audio: 'audio/final/scribezero-06-proof.mp3', video: 'video/final/scribezero-03-verify-proof.mp4', points: ['0G Storage', 'Integrity proof', 'Privacy boundary']},
-      {seconds: 25, label: '07 / judge case', title: 'A real healthcare workflow with a real 0G reason.', body: 'Documentation time, patient continuity, and private verification connect into one sellable clinic product.', audio: 'audio/final/scribezero-07-judge-case.mp3', points: ['Useful now', 'Sellable later', '0G-native proof']},
-      {seconds: 20, label: '08 / close', title: 'Spoken care becomes records patients can carry.', body: 'Live demo: scribezero.pages.dev', audio: 'audio/final/scribezero-08-close.mp3', points: ['Consult', 'Note', 'Verify']},
+      {seconds: 29, label: '01 / hook', title: 'A medical record should survive the app that created it.', body: 'ScribeZero turns the clinical conversation into patient-owned medical memory.', audio: 'audio/final/scribezero-01-hook.mp3', points: ['Conversation first', 'Patient-owned', 'Private proof']},
+      {seconds: 32, label: '02 / problem', title: 'Care speaks local. Records do not.', body: 'Tamil and Hindi consults get forced into English-first forms, rushed notes, and trapped portals.', audio: 'audio/final/scribezero-02-problem.mp3', points: ['Local language care', 'Lost continuity', 'Manual documentation']},
+      {seconds: 31, label: '03 / product loop', title: 'Listen. Structure. Seal. Verify.', body: 'The product is not just transcription. It is the workflow after transcription.', audio: 'audio/final/scribezero-03-product-loop.mp3', points: ['SOAP note', 'Timeline', 'Record handle']},
+      {seconds: 35, label: '04 / live demo', title: 'Consult to SOAP note', body: 'Live flow: record or play a consult, structure the encounter, review the generated note.', audio: 'audio/final/scribezero-04-demo-consult.mp3', video: 'video/final/scribezero-01-consult-to-note.mp4', points: ['Record consult', 'Generate note', 'Clinical review']},
+      {seconds: 36, label: '05 / records', title: 'A note becomes continuity.', body: 'Dashboard, patients, and records make ScribeZero a medical memory layer, not a one-screen demo.', audio: 'audio/final/scribezero-05-demo-records.mp3', video: 'video/final/scribezero-02-patients-records.mp4', points: ['Dashboard', 'Patients', 'Records']},
+      {seconds: 32, label: '06 / proof', title: 'The seal is the product.', body: '0G storage gives the patient a portable ownership handle while private medical content stays protected.', audio: 'audio/final/scribezero-06-proof.mp3', video: 'video/final/scribezero-03-verify-proof.mp4', points: ['0G Storage', 'Integrity proof', 'Privacy boundary']},
+      {seconds: 31, label: '07 / judge case', title: 'A real healthcare workflow with a real 0G reason.', body: 'Documentation time, patient continuity, and private verification connect into one sellable clinic product.', audio: 'audio/final/scribezero-07-judge-case.mp3', points: ['Useful now', 'Sellable later', '0G-native proof']},
+      {seconds: 14, label: '08 / close', title: 'Spoken care becomes records patients can carry.', body: 'Live demo: scribezero.pages.dev', audio: 'audio/final/scribezero-08-close.mp3', points: ['Consult', 'Note', 'Verify']},
     ],
   },
   {
@@ -60,15 +62,16 @@ const projects: Project[] = [
     accent2: '#6fffd2',
     bg: '#051108',
     fg: '#ffffff',
+    audioRate: 1.096,
     scenes: [
-      {seconds: 18, label: '01 / hook', title: 'Every fan has a best-eleven argument.', body: '0G World Cup turns football debate into a playable AI-native arena.', audio: 'audio/final/worldcup-01-hook.mp3', points: ['Draft', 'Simulate', 'Prove']},
-      {seconds: 27, label: '02 / problem', title: 'Fantasy games are fun. Their outcomes are not inspectable.', body: 'Historical dream teams, agents, and verifiable artifacts need one shared match loop.', audio: 'audio/final/worldcup-02-problem.mp3', points: ['Fan culture', 'Agent games', 'Black-box results']},
-      {seconds: 27, label: '03 / product loop', title: 'Create a room. Draft an eleven. Run the match.', body: 'The game is instantly understandable before the infrastructure is explained.', audio: 'audio/final/worldcup-03-product-loop.mp3', points: ['Room', 'Draft pool', 'Result card']},
-      {seconds: 46, label: '04 / live demo', title: 'Room creation and draft flow', body: 'The player creates a room, enters the player pool, and builds a squad for simulation.', audio: 'audio/final/worldcup-04-demo-draft.mp3', video: 'video/final/worldcup-01-create-room-draft.mp4', points: ['Create room', 'Pick mode', 'Select XI']},
-      {seconds: 44, label: '05 / match', title: 'Agents, board state, and result surfaces', body: 'The product moves from setup into outcome, share card, and agent-readable match context.', audio: 'audio/final/worldcup-05-demo-match.mp3', video: 'video/final/worldcup-02-agents-board-result.mp4', points: ['Agents', 'Board', 'Share result']},
-      {seconds: 36, label: '06 / proof', title: 'The proof trail is the product.', body: 'Draft commitment, match artifact, storage receipt, and agent identity make the score inspectable.', audio: 'audio/final/worldcup-06-proof.mp3', video: 'video/final/worldcup-03-proof-packet.mp4', points: ['Commitment', 'Storage receipt', 'Agent identity']},
-      {seconds: 24, label: '07 / judge case', title: 'Playable for fans. Inspectable for judges.', body: 'The concept is viral, the loop is complete, and the 0G layer improves the game itself.', audio: 'audio/final/worldcup-07-judge-case.mp3', points: ['Clear concept', 'Community-ready', 'Proof-native']},
-      {seconds: 18, label: '08 / close', title: 'Fantasy football for the agent era.', body: 'Live demo: 0g-world-cup.pages.dev', audio: 'audio/final/worldcup-08-close.mp3', points: ['Playable', 'Social', 'Verifiable']},
+      {seconds: 34, label: '01 / hook', title: 'Every fan has a best-eleven argument.', body: '0G World Cup turns football debate into a playable AI-native arena.', audio: 'audio/final/worldcup-01-hook.mp3', points: ['Draft', 'Simulate', 'Prove']},
+      {seconds: 33, label: '02 / problem', title: 'Fantasy games are fun. Their outcomes are not inspectable.', body: 'Historical dream teams, agents, and verifiable artifacts need one shared match loop.', audio: 'audio/final/worldcup-02-problem.mp3', points: ['Fan culture', 'Agent games', 'Black-box results']},
+      {seconds: 29, label: '03 / product loop', title: 'Create a room. Draft an eleven. Run the match.', body: 'The game is instantly understandable before the infrastructure is explained.', audio: 'audio/final/worldcup-03-product-loop.mp3', points: ['Room', 'Draft pool', 'Result card']},
+      {seconds: 34, label: '04 / live demo', title: 'Room creation and draft flow', body: 'The player creates a room, enters the player pool, and builds a squad for simulation.', audio: 'audio/final/worldcup-04-demo-draft.mp3', video: 'video/final/worldcup-01-create-room-draft.mp4', points: ['Create room', 'Pick mode', 'Select XI']},
+      {seconds: 39, label: '05 / match', title: 'Agents, board state, and result surfaces', body: 'The product moves from setup into outcome, share card, and agent-readable match context.', audio: 'audio/final/worldcup-05-demo-match.mp3', video: 'video/final/worldcup-02-agents-board-result.mp4', points: ['Agents', 'Board', 'Share result']},
+      {seconds: 32, label: '06 / proof', title: 'The proof trail is the product.', body: 'Draft commitment, match artifact, storage receipt, and agent identity make the score inspectable.', audio: 'audio/final/worldcup-06-proof.mp3', video: 'video/final/worldcup-03-proof-packet.mp4', points: ['Commitment', 'Storage receipt', 'Agent identity']},
+      {seconds: 28, label: '07 / judge case', title: 'Playable for fans. Inspectable for judges.', body: 'The concept is viral, the loop is complete, and the 0G layer improves the game itself.', audio: 'audio/final/worldcup-07-judge-case.mp3', points: ['Clear concept', 'Community-ready', 'Proof-native']},
+      {seconds: 11, label: '08 / close', title: 'Fantasy football for the agent era.', body: 'Live demo: 0g-world-cup.pages.dev', audio: 'audio/final/worldcup-08-close.mp3', points: ['Playable', 'Social', 'Verifiable']},
     ],
   },
   {
@@ -80,15 +83,16 @@ const projects: Project[] = [
     accent2: '#fff0a8',
     bg: '#030607',
     fg: '#ffffff',
+    audioRate: 1.047,
     scenes: [
-      {seconds: 18, label: '01 / hook', title: 'Agent games should be playable arenas.', body: 'A lobby where humans and AI agents compete under one proof standard.', audio: 'audio/final/arcade-01-hook.mp3', points: ['Game lobby', 'Agents', 'Proof']},
-      {seconds: 27, label: '02 / problem', title: 'One-off agent demos do not become places people return to.', body: 'Builders need game packs, rooms, receipts, replay data, and proof explorers.', audio: 'audio/final/arcade-02-problem.mp3', points: ['Fragmented demos', 'No shared format', 'No replay trail']},
-      {seconds: 25, label: '03 / product loop', title: 'Browse. Play. Prove. Submit.', body: 'The arcade starts as a game surface and grows into reusable agent-game infrastructure.', audio: 'audio/final/arcade-03-product-loop.mp3', points: ['Browse games', 'Start room', 'Submit packs']},
-      {seconds: 45, label: '04 / live demo', title: 'Multi-game discovery and room start', body: 'The user browses game cards, opens a detail page, and starts moving toward a room.', audio: 'audio/final/arcade-04-demo-games.mp3', video: 'video/final/arcade-01-games-start-room.mp4', points: ['Game grid', 'Game detail', 'Start CTA']},
-      {seconds: 43, label: '05 / match', title: 'Agents, matches, results, leaderboard', body: 'Humans and agents share the arena, then results become repeatable competition state.', audio: 'audio/final/arcade-05-demo-match.mp3', video: 'video/final/arcade-02-agents-match-result.mp4', points: ['Agent roster', 'Match result', 'Leaderboard']},
-      {seconds: 38, label: '06 / proof', title: 'Submission and explorer make it infrastructure.', body: 'Builders can submit game packs; matches can leave replay receipts and evidence.', audio: 'audio/final/arcade-06-proof.mp3', video: 'video/final/arcade-03-submit-explorer-proof.mp4', points: ['Submit game', 'Explorer', 'Receipts']},
-      {seconds: 26, label: '07 / judge case', title: 'Fun enough to play. Structured enough to grow.', body: 'Multiple games, agent support, builder submission, and proof receipts give the project a platform path.', audio: 'audio/final/arcade-07-judge-case.mp3', points: ['Multi-game', 'Builder path', '0G evidence']},
-      {seconds: 18, label: '08 / close', title: 'The game lobby for ownable agents.', body: 'Live demo: 0g-arcade-arena.pages.dev', audio: 'audio/final/arcade-08-close.mp3', points: ['Multiplayer', 'Extensible', 'Verifiable']},
+      {seconds: 31, label: '01 / hook', title: 'Agent games should be playable arenas.', body: 'A lobby where humans and AI agents compete under one proof standard.', audio: 'audio/final/arcade-01-hook.mp3', points: ['Game lobby', 'Agents', 'Proof']},
+      {seconds: 32, label: '02 / problem', title: 'One-off agent demos do not become places people return to.', body: 'Builders need game packs, rooms, receipts, replay data, and proof explorers.', audio: 'audio/final/arcade-02-problem.mp3', points: ['Fragmented demos', 'No shared format', 'No replay trail']},
+      {seconds: 33, label: '03 / product loop', title: 'Browse. Play. Prove. Submit.', body: 'The arcade starts as a game surface and grows into reusable agent-game infrastructure.', audio: 'audio/final/arcade-03-product-loop.mp3', points: ['Browse games', 'Start room', 'Submit packs']},
+      {seconds: 32, label: '04 / live demo', title: 'Multi-game discovery and room start', body: 'The user browses game cards, opens a detail page, and starts moving toward a room.', audio: 'audio/final/arcade-04-demo-games.mp3', video: 'video/final/arcade-01-games-start-room.mp4', points: ['Game grid', 'Game detail', 'Start CTA']},
+      {seconds: 35, label: '05 / match', title: 'Agents, matches, results, leaderboard', body: 'Humans and agents share the arena, then results become repeatable competition state.', audio: 'audio/final/arcade-05-demo-match.mp3', video: 'video/final/arcade-02-agents-match-result.mp4', points: ['Agent roster', 'Match result', 'Leaderboard']},
+      {seconds: 32, label: '06 / proof', title: 'Submission and explorer make it infrastructure.', body: 'Builders can submit game packs; matches can leave replay receipts and evidence.', audio: 'audio/final/arcade-06-proof.mp3', video: 'video/final/arcade-03-submit-explorer-proof.mp4', points: ['Submit game', 'Explorer', 'Receipts']},
+      {seconds: 30, label: '07 / judge case', title: 'Fun enough to play. Structured enough to grow.', body: 'Multiple games, agent support, builder submission, and proof receipts give the project a platform path.', audio: 'audio/final/arcade-07-judge-case.mp3', points: ['Multi-game', 'Builder path', '0G evidence']},
+      {seconds: 15, label: '08 / close', title: 'The game lobby for ownable agents.', body: 'Live demo: 0g-arcade-arena.pages.dev', audio: 'audio/final/arcade-08-close.mp3', points: ['Multiplayer', 'Extensible', 'Verifiable']},
     ],
   },
   {
@@ -100,15 +104,16 @@ const projects: Project[] = [
     accent2: '#7dd7ff',
     bg: '#06080b',
     fg: '#f6f0e8',
+    audioRate: 1.049,
     scenes: [
-      {seconds: 18, label: '01 / hook', title: 'AI workers should be assets, not rented sessions.', body: 'Ledger Zero is a marketplace for AI labor that can be owned, hired, and sold.', audio: 'audio/final/ledgerzero-01-hook.mp3', points: ['Own', 'Hire', 'Sell']},
-      {seconds: 28, label: '02 / problem', title: 'Agent value is trapped inside closed platforms.', body: 'Memory, capability history, and revenue potential need an ownership and inspection layer.', audio: 'audio/final/ledgerzero-02-problem.mp3', points: ['Locked memory', 'Opaque capability', 'No resale']},
-      {seconds: 26, label: '03 / product loop', title: 'Register a worker. Attach proof. Post jobs.', body: 'Ledger Zero treats an AI worker like an economic asset with artifacts, owner, and history.', audio: 'audio/final/ledgerzero-03-product-loop.mp3', points: ['Manifest', 'Job history', 'Owner state']},
-      {seconds: 46, label: '04 / live demo', title: 'Marketplace and worker diligence', body: 'Buyers browse workers, inspect capabilities, and review proof metadata before trusting them.', audio: 'audio/final/ledgerzero-04-demo-marketplace.mp3', video: 'video/final/ledgerzero-01-marketplace-worker.mp4', points: ['Marketplace', 'Worker detail', 'Proof metadata']},
-      {seconds: 44, label: '05 / workflow', title: 'Register supply and post demand', body: 'Creators register manifests while teams post jobs against proof-backed workers.', audio: 'audio/final/ledgerzero-05-demo-workflow.mp3', video: 'video/final/ledgerzero-02-register-post-job.mp4', points: ['Register', 'Post job', 'Job board']},
-      {seconds: 36, label: '06 / proof', title: 'Proof makes this a market, not a directory.', body: '0G storage keeps artifacts portable, while the Proof Center keeps live and fallback states honest.', audio: 'audio/final/ledgerzero-06-proof.mp3', video: 'video/final/ledgerzero-03-proof-profile.mp4', points: ['Portable artifacts', 'Ownership state', 'Honest proof']},
-      {seconds: 24, label: '07 / judge case', title: 'This points past the hackathon.', body: 'Teams already pay for AI labor; Ledger Zero adds ownership, inspection, and resale.', audio: 'audio/final/ledgerzero-07-judge-case.mp3', points: ['Real market', 'Asset layer', '0G leverage']},
-      {seconds: 18, label: '08 / close', title: 'The marketplace layer for AI labor.', body: 'Live demo: ledgerzero.pages.dev', audio: 'audio/final/ledgerzero-08-close.mp3', points: ['Owned', 'Hired', 'Sold']},
+      {seconds: 30, label: '01 / hook', title: 'AI workers should be assets, not rented sessions.', body: 'Ledger Zero is a marketplace for AI labor that can be owned, hired, and sold.', audio: 'audio/final/ledgerzero-01-hook.mp3', points: ['Own', 'Hire', 'Sell']},
+      {seconds: 31, label: '02 / problem', title: 'Agent value is trapped inside closed platforms.', body: 'Memory, capability history, and revenue potential need an ownership and inspection layer.', audio: 'audio/final/ledgerzero-02-problem.mp3', points: ['Locked memory', 'Opaque capability', 'No resale']},
+      {seconds: 30, label: '03 / product loop', title: 'Register a worker. Attach proof. Post jobs.', body: 'Ledger Zero treats an AI worker like an economic asset with artifacts, owner, and history.', audio: 'audio/final/ledgerzero-03-product-loop.mp3', points: ['Manifest', 'Job history', 'Owner state']},
+      {seconds: 35, label: '04 / live demo', title: 'Marketplace and worker diligence', body: 'Buyers browse workers, inspect capabilities, and review proof metadata before trusting them.', audio: 'audio/final/ledgerzero-04-demo-marketplace.mp3', video: 'video/final/ledgerzero-01-marketplace-worker.mp4', points: ['Marketplace', 'Worker detail', 'Proof metadata']},
+      {seconds: 33, label: '05 / workflow', title: 'Register supply and post demand', body: 'Creators register manifests while teams post jobs against proof-backed workers.', audio: 'audio/final/ledgerzero-05-demo-workflow.mp3', video: 'video/final/ledgerzero-02-register-post-job.mp4', points: ['Register', 'Post job', 'Job board']},
+      {seconds: 37, label: '06 / proof', title: 'Proof makes this a market, not a directory.', body: '0G storage keeps artifacts portable, while the Proof Center keeps live and fallback states honest.', audio: 'audio/final/ledgerzero-06-proof.mp3', video: 'video/final/ledgerzero-03-proof-profile.mp4', points: ['Portable artifacts', 'Ownership state', 'Honest proof']},
+      {seconds: 30, label: '07 / judge case', title: 'This points past the hackathon.', body: 'Teams already pay for AI labor; Ledger Zero adds ownership, inspection, and resale.', audio: 'audio/final/ledgerzero-07-judge-case.mp3', points: ['Real market', 'Asset layer', '0G leverage']},
+      {seconds: 14, label: '08 / close', title: 'The marketplace layer for AI labor.', body: 'Live demo: ledgerzero.pages.dev', audio: 'audio/final/ledgerzero-08-close.mp3', points: ['Owned', 'Hired', 'Sold']},
     ],
   },
 ];
@@ -175,7 +180,7 @@ function FootageScene({project, scene}: {project: Project; scene: Scene}) {
 
 function ScenePlayer({project, scene}: {project: Project; scene: Scene}) {
   return <AbsoluteFill>
-    <Audio src={staticFile(scene.audio)} volume={.98} />
+    <Audio src={staticFile(scene.audio)} volume={.98} playbackRate={project.audioRate} />
     {scene.video ? <FootageScene project={project} scene={scene} /> : <TextScene project={project} scene={scene} />}
   </AbsoluteFill>;
 }
