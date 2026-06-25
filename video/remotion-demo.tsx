@@ -162,19 +162,9 @@ function TextScene({project, scene}: {project: Project; scene: Scene}) {
   </AbsoluteFill>;
 }
 
-function FootageScene({project, scene}: {project: Project; scene: Scene}) {
-  return <AbsoluteFill>
-    <Background project={project} />
-    <Header project={project} scene={scene} />
-    <div style={{position: 'absolute', left: 52, right: 52, top: 100, height: 442, borderRadius: 16, overflow: 'hidden', border: `2px solid ${project.accent}88`, background: '#000', boxShadow: `0 0 70px ${project.accent}24`}}>
-      <Video src={staticFile(scene.video ?? 'video/raw/demo-footage.mp4')} muted loop style={{width: '100%', height: '100%', objectFit: 'cover'}} />
-      <div style={{position: 'absolute', left: 20, top: 20, padding: '10px 13px', borderRadius: 8, background: 'rgba(0,0,0,.74)', color: project.accent, fontSize: 15, letterSpacing: 2, textTransform: 'uppercase', fontWeight: 950}}>Live app footage slot</div>
-      <div style={{position: 'absolute', left: 20, right: 20, bottom: 18, padding: '14px 16px', borderRadius: 8, background: 'rgba(0,0,0,.76)', color: project.fg}}>
-        <span style={{fontSize: 25, fontWeight: 950}}>{scene.title}</span>
-        <span style={{marginLeft: 12, fontSize: 17, opacity: .78, fontWeight: 750}}>{scene.body}</span>
-      </div>
-    </div>
-    <div style={{position: 'absolute', left: 52, right: 52, bottom: 46}}><PointGrid project={project} points={scene.points} /></div>
+function FootageScene({scene}: {project: Project; scene: Scene}) {
+  return <AbsoluteFill style={{background: '#000'}}>
+    <Video src={staticFile(scene.video ?? 'video/raw/demo-footage.mp4')} muted loop style={{width: '100%', height: '100%', objectFit: 'cover'}} />
   </AbsoluteFill>;
 }
 
